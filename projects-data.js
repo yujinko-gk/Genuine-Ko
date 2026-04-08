@@ -23,7 +23,7 @@ window.PORTFOLIO_GALLERY = {
                 "./images/PC1.jpg",
                 "./images/PC2.jpg",
                 "./images/PC3.jpg",
-                "./images/PC4.jpg",
+                "./images/PC4.JPG",
             ],
         },
         {
