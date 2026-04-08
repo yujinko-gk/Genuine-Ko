@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Genuine Ko | Portfolio</title>
     <meta name="description" content="Personal portfolio of Genuine Ko.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,34 +20,6 @@
     <svg class="draw-layer" id="draw-layer" aria-hidden="true"></svg>
 
     <main class="hidden-initially">
-        <!-- Floating Elements (About Mode only) -->
-        <div class="floating-text float-1 repulse font-japanese" data-speed="1.2">
-            潭彝
-            <div class="pronunciation">[dam-e]</div>
-            <span class="meaning-box">A traditional Korean pen name written in Chinese, and the name my family calls me,
-                meaning "Still as
-                deep water, open to the world."</span>
-        </div>
-        <div class="floating-text float-2 repulse font-japanese" data-speed="0.9">
-            高流進
-            <div class="pronunciation">[goh yoo-jin]</div>
-            <span class="meaning-box"> My legal name in Chinese characters. Most Korean names can be written this way,
-                meaning "Always reaching higher, always moving forward."</span>
-        </div>
-        <div class="floating-text float-3 repulse font-korean" data-speed="1.1">
-            고유진
-            <div class="pronunciation">[goh yoo-jin]</div>
-            <span class="meaning-box">My legal name written in Korean</span>
-        </div>
-        <div class="floating-text float-4 repulse font-japanese" data-speed="0.8">
-            Riley
-            <span class="meaning-box">My English name used in 2021–2023. Some people still call me Riley :)</span>
-        </div>
-        <div class="floating-text float-5 repulse font-japanese" data-speed="1.0">
-            Yujin Ko
-            <span class="meaning-box">My legal name written in English</span>
-        </div>
-
         <!-- Navigation / Identity -->
         <div class="intro-sentence">
             <span class="static-text"></span><span class="type-cursor" id="cursor">|</span>
@@ -125,32 +97,66 @@
 
         <!-- About Me Section -->
         <section id="about-section">
-            <div class="about-left-instruction">
-                <div class="about-left-instruction__inner">
-                    <p class="about-instruction__line about-instruction__line--first">
-                        <span id="about-typewriter-line1"></span><span class="type-cursor about-type-cursor"
-                            id="about-type-cursor-1" aria-hidden="true">|</span>
-                    </p>
-                    <p class="about-instruction__line about-instruction__line--second">
-                        <span id="about-typewriter-line2"></span><span class="type-cursor about-type-cursor"
-                            id="about-type-cursor-2" aria-hidden="true" hidden>|</span>
-                    </p>
+            <div class="about-intro-bundle">
+                <div class="about-left-instruction">
+                    <div class="about-left-instruction__inner">
+                        <p class="about-instruction__line about-instruction__line--first">
+                            <span id="about-typewriter-line1"></span><span class="type-cursor about-type-cursor"
+                                id="about-type-cursor-1" aria-hidden="true">|</span>
+                        </p>
+                        <p class="about-instruction__line about-instruction__line--second">
+                            <span id="about-typewriter-line2"></span><span class="type-cursor about-type-cursor"
+                                id="about-type-cursor-2" aria-hidden="true" hidden>|</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="about-floating-names-slot" id="about-floating-names-slot">
+                    <div class="floating-text float-1 repulse font-japanese" data-speed="1.2">
+                        潭彝
+                        <div class="pronunciation">[dam-e]</div>
+                        <span class="meaning-box">A traditional Korean pen name written in Chinese, and the name my family calls me,
+                            meaning "Still as
+                            deep water, open to the world."</span>
+                    </div>
+                    <div class="floating-text float-2 repulse font-japanese" data-speed="0.9">
+                        高流進
+                        <div class="pronunciation">[goh yoo-jin]</div>
+                        <span class="meaning-box"> My legal name in Chinese characters. Most Korean names can be written this way,
+                            meaning "Always reaching higher, always moving forward."</span>
+                    </div>
+                    <div class="floating-text float-3 repulse font-korean" data-speed="1.1">
+                        고유진
+                        <div class="pronunciation">[goh yoo-jin]</div>
+                        <span class="meaning-box">My legal name written in Korean</span>
+                    </div>
+                    <div class="floating-text float-4 repulse font-japanese" data-speed="0.8">
+                        Riley
+                        <span class="meaning-box">My English name used in 2021–2023. Some people still call me Riley :)</span>
+                    </div>
+                    <div class="floating-text float-5 repulse font-japanese" data-speed="1.0">
+                        Yujin Ko
+                        <span class="meaning-box">My legal name written in English</span>
+                    </div>
                 </div>
             </div>
             <div class="about-middle">
-                <p>I am Genuine Ko, a junior Design major at USC Roski School of Art and Design with a minor in Music
-                    Production. I am an observer, an analyst, and a learner. Growing up across different cities, I
-                    learned to see the world from multiple angles. Everything is complexly interconnected, and
-                    everything speaks in its own language. I'm drawn to what's unspoken, unwritten, and overlooked.</p>
+                <p>I am Genuine Ko, a junior BFA Design major at USC Roski School of Art and Design with a minor in
+                    Music Production. I'm drawn to things that are fluid, undefined, and untold, as I believe in the
+                    potential for change within them and the deep resonance within the unseen. As a creator, observer,
+                    analyst, and learner, I came to see the world from multiple angles through the cities and environments
+                    in which I grew up. The world is deeply interconnected, and yet every part of it speaks in its own
+                    voice. I find meaning in the spaces, the moments, and what passes between us, in all the things that
+                    are easy to overlook. In design, I believe in the weight of emptiness and what's implied. What is
+                    left out can be just as intentional as what remains.</p>
                 <br>
-                <p>Music is my biggest source of inspiration. I sing and arrange for <a
-                        href="https://www.instagram.com/trogonsacappella/" class="about-inline-link" target="_blank"
-                        rel="noopener noreferrer">Trogons</a>, USC's premier East Asian a
-                    cappella group, and design social media for <a href="https://www.instagram.com/uscbandkori/"
-                        class="about-inline-link" target="_blank" rel="noopener noreferrer">Band Kori</a>, USC's one and only K-pop band. Sound,
-                    culture, and identity are always somewhere in my work. My international and multidisciplinary
-                    background keeps me open to new ideas, unexpected connections, and the kind of thinking that doesn't
-                    fit neatly into one category.</p>
+                <p>Music is my unavoidable passion. I'm drawn to how it exists as a language, in words and beyond them,
+                    expressed through melody, rhythm, and harmony. It's a passion I follow into everything I do. I sing
+                    and arrange for <a href="https://www.instagram.com/trogonsacappella/" class="about-inline-link"
+                        target="_blank" rel="noopener noreferrer">Trogons</a>, USC's premier East Asian a cappella group,
+                    and co-design social media for <a href="https://www.instagram.com/uscbandkori/"
+                        class="about-inline-link" target="_blank" rel="noopener noreferrer">Band Kori</a>, USC's one and
+                    only K-pop band. Culture and identity are always somewhere in my work, shaping the kind of thinking
+                    that doesn't fit neatly into one category.</p>
 
                 <div class="social-links">
                     <a href="https://drive.google.com/file/d/1EEoKrZ_BSdaJ3mPtNAwGcaf2oM-sKtv2/view?usp=sharing"

@@ -204,13 +204,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setHeroFromSlide(initialSlide);
     setTimeout(revealArtworkFooter, 520);
 
-    if (hero && slideSources.length > 1) {
-        hero.addEventListener("click", () => {
-            const next = (activeSlide + 1) % slideSources.length;
-            setHeroFromSlide(next);
-        });
-    }
-
     hero.classList.add("detail-hero--enter");
     requestAnimationFrame(() => hero.classList.add("detail-hero--enter-active"));
 });

@@ -4,42 +4,171 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.add('work-mode');
     }
 
-    // --- Custom Cursor ---
+    const useFinePointerChrome =
+        window.matchMedia('(pointer: fine)').matches &&
+        window.matchMedia('(hover: hover)').matches;
+
+    // --- Custom Cursor (mouse / fine pointer only) ---
     const cursor = document.querySelector('.cursor');
     const follower = document.querySelector('.cursor-follower');
 
-    let mouseX = window.innerWidth / 2;
-    let mouseY = window.innerHeight / 2;
-    let followerX = mouseX;
-    let followerY = mouseY;
+    if (useFinePointerChrome && cursor && follower) {
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        let followerX = mouseX;
+        let followerY = mouseY;
 
-    document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
 
-        cursor.style.left = `${mouseX}px`;
-        cursor.style.top = `${mouseY}px`;
-    });
-
-    function animateFollower() {
-        followerX += (mouseX - followerX) * 0.15;
-        followerY += (mouseY - followerY) * 0.15;
-
-        follower.style.left = `${followerX}px`;
-        follower.style.top = `${followerY}px`;
-
-        requestAnimationFrame(animateFollower);
-    }
-    animateFollower();
-
-    const attachHoverEffects = () => {
-        const interactiveElements = document.querySelectorAll('a, button, .interactive, .thumb, .main-title, .category-item');
-        interactiveElements.forEach(el => {
-            el.addEventListener('mouseenter', () => follower.classList.add('active'));
-            el.addEventListener('mouseleave', () => follower.classList.remove('active'));
+            cursor.style.left = `${mouseX}px`;
+            cursor.style.top = `${mouseY}px`;
         });
-    };
-    attachHoverEffects();
+
+        function animateFollower() {
+            followerX += (mouseX - followerX) * 0.15;
+            followerY += (mouseY - followerY) * 0.15;
+
+            follower.style.left = `${followerX}px`;
+            follower.style.top = `${followerY}px`;
+
+            requestAnimationFrame(animateFollower);
+        }
+        animateFollower();
+
+        const attachHoverEffects = () => {
+            const interactiveElements = document.querySelectorAll(
+                'a, button, .interactive, .thumb, .main-title, .category-item'
+            );
+            interactiveElements.forEach((el) => {
+                el.addEventListener('mouseenter', () => follower.classList.add('active'));
+                el.addEventListener('mouseleave', () => follower.classList.remove('active'));
+            });
+        };
+        attachHoverEffects();
+    } else {
+        if (cursor) cursor.style.display = 'none';
+        if (follower) follower.style.display = 'none';
+    }
+
+    // --- Cursor click stamps (fine pointer only) ---
+    if (useFinePointerChrome) {
+        const stampsLayer = document.createElement('div');
+        stampsLayer.id = 'cursor-stamps-layer';
+        stampsLayer.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(stampsLayer);
+
+        const STAMP_DRAG_THRESHOLD_PX = 12;
+        const STAMP_DRAG_THRESHOLD_SQ = STAMP_DRAG_THRESHOLD_PX * STAMP_DRAG_THRESHOLD_PX;
+        const STAMP_VISIBLE_MS = 2600;
+        const STAMP_FADE_MS = 550;
+        const STAMP_MAX_COUNT = 24;
+
+        let stampGestureOrigin = null;
+        let stampMaxDistSq = 0;
+        let stampClickEligible = false;
+
+        window.addEventListener(
+            'pointerdown',
+            (e) => {
+                if (e.button !== 0) return;
+                stampGestureOrigin = { x: e.clientX, y: e.clientY };
+                stampMaxDistSq = 0;
+                stampClickEligible = false;
+            },
+            true
+        );
+
+        window.addEventListener(
+            'pointermove',
+            (e) => {
+                if (!stampGestureOrigin || !e.buttons) return;
+                const dx = e.clientX - stampGestureOrigin.x;
+                const dy = e.clientY - stampGestureOrigin.y;
+                const d = dx * dx + dy * dy;
+                if (d > stampMaxDistSq) stampMaxDistSq = d;
+            },
+            true
+        );
+
+        window.addEventListener(
+            'pointerup',
+            (e) => {
+                if (e.button !== 0 || !stampGestureOrigin) return;
+                stampClickEligible = stampMaxDistSq <= STAMP_DRAG_THRESHOLD_SQ;
+                stampGestureOrigin = null;
+            },
+            true
+        );
+
+        function spawnCursorStamp(clientX, clientY) {
+            if (!stampsLayer) return;
+            while (stampsLayer.children.length >= STAMP_MAX_COUNT) {
+                stampsLayer.firstElementChild?.remove();
+            }
+
+            const ringLarge = follower && follower.classList.contains('active');
+            const stamp = document.createElement('div');
+            stamp.className = 'cursor-stamp';
+            stamp.style.left = `${clientX}px`;
+            stamp.style.top = `${clientY}px`;
+
+            const ring = document.createElement('div');
+            ring.className =
+                'cursor-stamp__ring' + (ringLarge ? ' cursor-stamp__ring--large' : '');
+
+            stamp.appendChild(ring);
+            stampsLayer.appendChild(stamp);
+
+            requestAnimationFrame(() => stamp.classList.add('cursor-stamp--visible'));
+
+            window.setTimeout(() => {
+                stamp.classList.add('cursor-stamp--leaving');
+                window.setTimeout(() => stamp.remove(), STAMP_FADE_MS);
+            }, STAMP_VISIBLE_MS);
+        }
+
+        /** Stamps on “empty” clicks only — not on links, buttons, or other UI that does something. */
+        function shouldSuppressCursorStamp(target) {
+            return Boolean(
+                target.closest(
+                    [
+                        'a[href]',
+                        'button',
+                        'input',
+                        'textarea',
+                        'select',
+                        'label',
+                        '.link-item',
+                        '.thumb',
+                        '.category-item',
+                        '#logo',
+                        '.about-inline-link',
+                        '.project-link',
+                        '.social-links a',
+                        '#main-gallery-img',
+                        '.floating-text',
+                        '.work-detail-thumb',
+                        '.detail-back',
+                        '.detail-thumb',
+                    ].join(', ')
+                )
+            );
+        }
+
+        document.addEventListener(
+            'click',
+            (e) => {
+                if (e.button !== 0) return;
+                if (!stampClickEligible) return;
+                stampClickEligible = false;
+                if (shouldSuppressCursorStamp(e.target)) return;
+                spawnCursorStamp(e.clientX, e.clientY);
+            },
+            true
+        );
+    }
 
     setTimeout(() => {
         const mainContent = document.querySelector('.hidden-initially');
@@ -56,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function isInteractiveTarget(target) {
         return Boolean(target.closest(
-            'a, button, input, textarea, select, .thumb, .arrow, .floating-text, .project-overlay, .work-detail-panel, .work-detail-layer, .gallery-categories-sidebar, .about-middle, .about-right, .about-left-instruction'
+            'a, button, input, textarea, select, .thumb, .arrow, .floating-text, .project-overlay, .work-detail-panel, .work-detail-layer, .gallery-categories-sidebar, .about-middle, .about-right, .about-left-instruction, .about-intro-bundle, .about-floating-names-slot'
         ));
     }
 
@@ -102,9 +231,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         requestAnimationFrame(animateFloatingLines);
     }
-    requestAnimationFrame(animateFloatingLines);
+    if (useFinePointerChrome) {
+        requestAnimationFrame(animateFloatingLines);
+    }
 
-    if (drawLayer) {
+    if (useFinePointerChrome && drawLayer) {
         const setLayerSize = () => {
             drawLayer.setAttribute('viewBox', `0 0 ${window.innerWidth} ${window.innerHeight}`);
         };
@@ -183,8 +314,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 ambientSpeedX: 0.5 + Math.random() * 0.5,
                 ambientSpeedY: 0.5 + Math.random() * 0.5,
             };
-            el.addEventListener('mouseenter', () => follower.classList.add('active'));
-            el.addEventListener('mouseleave', () => follower.classList.remove('active'));
+            el.addEventListener('mouseenter', () => follower?.classList.add('active'));
+            el.addEventListener('mouseleave', () => follower?.classList.remove('active'));
             return data;
         });
 
@@ -222,7 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 initialDataX = data.x;
                 initialDataY = data.y;
                 data.el.style.zIndex = '100';
-                follower.classList.add('active');
+                follower?.classList.add('active');
             });
         });
 
@@ -236,13 +367,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         window.addEventListener('pointerup', (e) => {
             if (!draggedData) return;
-            follower.classList.remove('active');
+            follower?.classList.remove('active');
             endFloatDrag(e.clientX, e.clientY);
         });
 
         window.addEventListener('pointercancel', (e) => {
             if (!draggedData) return;
-            follower.classList.remove('active');
+            follower?.classList.remove('active');
             endFloatDrag(e.clientX, e.clientY);
         });
 
@@ -256,34 +387,66 @@ document.addEventListener('DOMContentLoaded', () => {
         function animateFloat() {
             const time = Date.now() * 0.001;
             const isAboutMode = document.body.classList.contains('about-mode');
+            const mobileAbout =
+                isAboutMode && window.matchMedia('(max-width: 768px)').matches;
+            const aboutNamesSlot =
+                isAboutMode ? document.getElementById('about-floating-names-slot') : null;
 
-            elementsData.forEach(data => {
+            elementsData.forEach((data) => {
                 data.vx *= 0.985;
                 data.vy *= 0.985;
 
-                // About mode: gentle drift anywhere on the screen (no walls / obstacle pushes)
                 if (isAboutMode && draggedData !== data) {
-                    data.vx += (Math.random() - 0.5) * 0.06;
-                    data.vy += (Math.random() - 0.5) * 0.06;
-                    const maxSpeed = 1.1;
+                    const drift = mobileAbout ? 0.02 : 0.042;
+                    const maxSpeed = mobileAbout ? 0.48 : 0.82;
+                    data.vx += (Math.random() - 0.5) * drift;
+                    data.vy += (Math.random() - 0.5) * drift;
                     data.vx = Math.max(-maxSpeed, Math.min(maxSpeed, data.vx));
                     data.vy = Math.max(-maxSpeed, Math.min(maxSpeed, data.vy));
 
-                    const floatRect = data.el.getBoundingClientRect();
-                    const pad = 40;
-                    if (floatRect.right < -pad) data.x += window.innerWidth + floatRect.width + pad * 2;
-                    if (floatRect.left > window.innerWidth + pad) data.x -= window.innerWidth + floatRect.width + pad * 2;
-                    if (floatRect.bottom < -pad) data.y += window.innerHeight + floatRect.height + pad * 2;
-                    if (floatRect.top > window.innerHeight + pad) data.y -= window.innerHeight + floatRect.height + pad * 2;
+                    if (!aboutNamesSlot) {
+                        const floatRect = data.el.getBoundingClientRect();
+                        const pad = 40;
+                        if (floatRect.right < -pad) data.x += window.innerWidth + floatRect.width + pad * 2;
+                        if (floatRect.left > window.innerWidth + pad) data.x -= window.innerWidth + floatRect.width + pad * 2;
+                        if (floatRect.bottom < -pad) data.y += window.innerHeight + floatRect.height + pad * 2;
+                        if (floatRect.top > window.innerHeight + pad) data.y -= window.innerHeight + floatRect.height + pad * 2;
+                    }
                 }
 
                 data.x += data.vx;
                 data.y += data.vy;
-                // Freeze ambient wobble while dragging so motion feels stable.
                 const isDraggingThis = draggedData === data;
-                const floatX = isDraggingThis ? 0 : Math.sin(time * data.ambientSpeedX + data.ambientPhaseX) * 20;
-                const floatY = isDraggingThis ? 0 : Math.cos(time * data.ambientSpeedY + data.ambientPhaseY) * 25;
+                const ambX = mobileAbout ? 10 : 18;
+                const ambY = mobileAbout ? 12 : 22;
+                const floatX = isDraggingThis ? 0 : Math.sin(time * data.ambientSpeedX + data.ambientPhaseX) * ambX;
+                const floatY = isDraggingThis ? 0 : Math.cos(time * data.ambientSpeedY + data.ambientPhaseY) * ambY;
+
                 data.el.style.transform = `translate(${data.x + floatX}px, ${data.y + floatY}px)`;
+
+                if (aboutNamesSlot && draggedData !== data) {
+                    const sr = aboutNamesSlot.getBoundingClientRect();
+                    if (sr.width < 12 || sr.height < 12) return;
+                    const pad = 6;
+                    let r = data.el.getBoundingClientRect();
+                    let dy = 0;
+                    if (r.bottom > sr.bottom - pad) dy -= r.bottom - (sr.bottom - pad);
+                    if (r.top < sr.top + pad) dy += sr.top + pad - r.top;
+                    if (dy !== 0) {
+                        data.y += dy;
+                        data.vy *= 0.5;
+                        data.el.style.transform = `translate(${data.x + floatX}px, ${data.y + floatY}px)`;
+                        r = data.el.getBoundingClientRect();
+                    }
+                    let dx = 0;
+                    if (r.right > sr.right - pad) dx -= r.right - (sr.right - pad);
+                    if (r.left < sr.left + pad) dx += sr.left + pad - r.left;
+                    if (dx !== 0) {
+                        data.x += dx;
+                        data.vx *= 0.5;
+                        data.el.style.transform = `translate(${data.x + floatX}px, ${data.y + floatY}px)`;
+                    }
+                }
             });
             requestAnimationFrame(animateFloat);
         }
@@ -301,7 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const scatterWordsList = [
         "unspoken", "unwritten", "untold", "unseen", "unnamed",
         "overlooked", "silence", "margin", "blank", "pause",
-        "void", "gap", "Invisible", "mundane", "invisible", "the elusive"
+        "void", "gap", "invisible", "mundane", "invisible", "elusive"
     ];
 
     let scatterSessionId = 0;
@@ -862,9 +1025,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function openDetailView() {
+    function openDetailView(options = {}) {
+        const fromGalleryImage = Boolean(options.fromGalleryImage);
         const item = currentImages[currentGalleryIndex];
         if (!item || !detailLayer || !detailHero || !detailTitle || !detailDesc) return;
+
+        const workGalleryEl = document.getElementById('work-gallery');
+        if (workGalleryEl && window.matchMedia('(min-width: 769px)').matches) {
+            workGalleryEl.scrollTop = 0;
+        }
 
         previousWorkIndex = currentGalleryIndex;
         const slides = Array.isArray(item.slides) && item.slides.length > 0 ? item.slides : [item.src];
@@ -914,13 +1083,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
         detailLayer.classList.add('active');
         detailLayer.setAttribute('aria-hidden', 'false');
-        detailHero.classList.remove('detail-hero-grow');
-        requestAnimationFrame(() => detailHero.classList.add('detail-hero-grow'));
+        detailHero.classList.remove('detail-hero-grow', 'detail-hero-from-gallery');
+
+        const narrowWorkUi = window.matchMedia('(max-width: 768px)').matches;
+        if (narrowWorkUi) {
+            /* Keep hero stable in layout — no scale-from-small entrance that reads as a jump */
+            detailHero.classList.add('detail-hero-grow');
+        } else if (fromGalleryImage) {
+            detailHero.classList.add('detail-hero-from-gallery');
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    detailHero.classList.remove('detail-hero-from-gallery');
+                    detailHero.classList.add('detail-hero-grow');
+                });
+            });
+        } else {
+            requestAnimationFrame(() => detailHero.classList.add('detail-hero-grow'));
+        }
         detailOpen = true;
     }
 
     function closeDetailView(restorePrevious = true) {
         if (!detailOpen || !detailLayer) return;
+        if (detailHero) detailHero.classList.remove('detail-hero-grow', 'detail-hero-from-gallery');
+        document.querySelector('.gallery-image-wrapper')?.classList.remove('gallery-img-zoom-open');
         clearInPageDetailFooter();
         detailLayer.classList.remove('active');
         detailLayer.classList.remove('work-detail--no-thumbs');
@@ -929,11 +1115,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (restorePrevious) updateGallery(previousWorkIndex);
     }
 
+    function setMobileGalleryImgZoom(on) {
+        const wrap = document.querySelector('.gallery-image-wrapper');
+        if (!wrap || !window.matchMedia('(max-width: 768px)').matches) return;
+        wrap.classList.toggle('gallery-img-zoom-open', on);
+    }
+
     if (navWork) {
         navWork.addEventListener('click', () => {
             armSuppressMainGalleryClick();
             if (detailOpen) closeDetailView(false);
             if (projectOverlay) projectOverlay.classList.remove('active');
+            setMobileGalleryImgZoom(false);
         });
     }
 
@@ -942,6 +1135,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             if (detailOpen) closeDetailView(false);
             if (projectOverlay) projectOverlay.classList.remove('active');
+            setMobileGalleryImgZoom(false);
             document.body.classList.remove('work-mode');
             document.body.classList.remove('about-mode');
             startIntroTypewriter();
@@ -953,45 +1147,31 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!ev.persisted) return;
         if (detailOpen) closeDetailView(false);
         if (projectOverlay) projectOverlay.classList.remove('active');
+        setMobileGalleryImgZoom(false);
     });
 
     if (mainImg && projectOverlay) {
         mainImg.addEventListener('click', () => {
             if (isMainGalleryClickSuppressed()) return;
             const currentData = currentImages[currentGalleryIndex];
-            overlayTitle.innerText = currentData.title;
+            if (overlayTitle) overlayTitle.innerText = currentData.title;
             projectOverlay.classList.add('active');
+            setMobileGalleryImgZoom(true);
         });
 
         projectOverlay.addEventListener('click', (e) => {
             if (e.target === overlayLink) return;
             projectOverlay.classList.remove('active');
+            setMobileGalleryImgZoom(false);
         });
     }
 
     if (overlayLink) {
         overlayLink.addEventListener('click', (e) => {
             e.preventDefault();
-            projectOverlay.classList.remove('active');
-            openDetailView();
-        });
-    }
-
-    if (detailHero) {
-        detailHero.addEventListener('click', (e) => {
-            if (!detailOpen || detailSlideSources.length < 2) return;
-            e.stopPropagation();
-            detailSlideIndex = (detailSlideIndex + 1) % detailSlideSources.length;
-            const nextSrc = detailSlideSources[detailSlideIndex];
-            fadeSwapImage(detailHero, nextSrc, () => {
-                detailHero.classList.remove('detail-hero-grow');
-                requestAnimationFrame(() => detailHero.classList.add('detail-hero-grow'));
-            });
-            if (detailThumbs) {
-                detailThumbs.querySelectorAll('.work-detail-thumb').forEach((b, i) => {
-                    b.classList.toggle('active', i === detailSlideIndex);
-                });
-            }
+            if (projectOverlay) projectOverlay.classList.remove('active');
+            setMobileGalleryImgZoom(false);
+            openDetailView({ fromGalleryImage: true });
         });
     }
 
