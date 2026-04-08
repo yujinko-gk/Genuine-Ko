@@ -204,6 +204,28 @@ document.addEventListener("DOMContentLoaded", () => {
     setHeroFromSlide(initialSlide);
     setTimeout(revealArtworkFooter, 520);
 
+    if (hero && slideSources.length > 1) {
+        hero.classList.add("detail-hero--advance");
+        hero.setAttribute("role", "button");
+        hero.setAttribute("tabindex", "0");
+        hero.setAttribute(
+            "aria-label",
+            "Show next image (cycles through project images)"
+        );
+
+        function goToNextSlide() {
+            setHeroFromSlide((activeSlide + 1) % slideSources.length);
+        }
+
+        hero.addEventListener("click", goToNextSlide);
+        hero.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                goToNextSlide();
+            }
+        });
+    }
+
     hero.classList.add("detail-hero--enter");
     requestAnimationFrame(() => hero.classList.add("detail-hero--enter-active"));
 });

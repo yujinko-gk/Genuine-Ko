@@ -896,6 +896,50 @@ document.addEventListener('DOMContentLoaded', () => {
     let detailSlideSources = [];
     let detailSlideIndex = 0;
 
+    function updateWorkDetailHeroAdvanceState() {
+        if (!detailHero) return;
+        const multi = detailSlideSources.length > 1;
+        detailHero.classList.toggle('detail-hero--advance', multi);
+        if (multi) {
+            detailHero.setAttribute('role', 'button');
+            detailHero.setAttribute('tabindex', '0');
+            detailHero.setAttribute(
+                'aria-label',
+                'Show next image (cycles through project images)'
+            );
+        } else {
+            detailHero.removeAttribute('role');
+            detailHero.removeAttribute('tabindex');
+            detailHero.removeAttribute('aria-label');
+        }
+    }
+
+    function advanceWorkDetailHero(e) {
+        if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
+        if (e.type === 'keydown') e.preventDefault();
+        if (!detailOpen || !detailHero || detailSlideSources.length <= 1) return;
+        detailSlideIndex = (detailSlideIndex + 1) % detailSlideSources.length;
+        const src = detailSlideSources[detailSlideIndex];
+        const item = currentImages[currentGalleryIndex];
+        fadeSwapImage(detailHero, src, () => {
+            detailHero.classList.remove('detail-hero-grow');
+            requestAnimationFrame(() => detailHero.classList.add('detail-hero-grow'));
+        });
+        if (detailThumbs) {
+            detailThumbs.querySelectorAll('.work-detail-thumb').forEach((b, i) => {
+                b.classList.toggle('active', i === detailSlideIndex);
+            });
+        }
+        detailHero.alt = item
+            ? `${item.title} — image ${detailSlideIndex + 1}`
+            : 'Project image';
+    }
+
+    if (detailHero) {
+        detailHero.addEventListener('click', advanceWorkDetailHero);
+        detailHero.addEventListener('keydown', advanceWorkDetailHero);
+    }
+
     function renderDetailThumbs(slides, activeIndex) {
         if (!detailThumbs) return;
         detailThumbs.innerHTML = '';
@@ -919,6 +963,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 detailThumbs.querySelectorAll('.work-detail-thumb').forEach((b) => b.classList.remove('active'));
                 btn.classList.add('active');
+                const cur = currentImages[currentGalleryIndex];
+                if (cur) detailHero.alt = `${cur.title} — image ${i + 1}`;
             });
 
             detailThumbs.appendChild(btn);
@@ -1042,7 +1088,11 @@ document.addEventListener('DOMContentLoaded', () => {
         detailSlideIndex = activeSlide;
 
         detailHero.src = slides[activeSlide] || item.src;
-        detailHero.alt = item.title || 'Project image';
+        detailHero.alt = item.title
+            ? slides.length > 1
+                ? `${item.title} — image ${activeSlide + 1}`
+                : item.title
+            : 'Project image';
         detailTitle.textContent = item.title || '';
         const isFineArt = currentCategory === 'fineart';
         const isDesign = currentCategory === 'design';
@@ -1075,6 +1125,8 @@ document.addEventListener('DOMContentLoaded', () => {
             renderDetailThumbs(slides, activeSlide);
         }
 
+        updateWorkDetailHeroAdvanceState();
+
         setInPageDetailFooter(item, currentCategory);
         detailArtworkRevealTimeout = setTimeout(() => {
             detailArtworkRevealTimeout = null;
@@ -1105,7 +1157,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function closeDetailView(restorePrevious = true) {
         if (!detailOpen || !detailLayer) return;
-        if (detailHero) detailHero.classList.remove('detail-hero-grow', 'detail-hero-from-gallery');
+        if (detailHero) {
+            detailHero.classList.remove(
+                'detail-hero-grow',
+                'detail-hero-from-gallery',
+                'detail-hero--advance'
+            );
+            detailHero.removeAttribute('role');
+            detailHero.removeAttribute('tabindex');
+            detailHero.removeAttribute('aria-label');
+        }
         document.querySelector('.gallery-image-wrapper')?.classList.remove('gallery-img-zoom-open');
         clearInPageDetailFooter();
         detailLayer.classList.remove('active');
