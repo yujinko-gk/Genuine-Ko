@@ -530,6 +530,46 @@ body.about-mode #about-section * {
     opacity: 0.4;
 }
 
+.about-contact {
+    margin-top: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.about-contact__label {
+    margin: 0;
+    font-family: 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--text-color);
+    opacity: 0.55;
+}
+
+.about-contact__emails {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.about-contact__emails a {
+    color: #000000;
+    font-family: 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 300;
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    transition: opacity 0.3s ease;
+}
+
+.about-contact__emails a:hover {
+    opacity: 0.45;
+}
+
 .about-right {
     position: absolute;
     left: 66.66%;
@@ -1878,6 +1918,14 @@ body.project-detail-page.project-detail--no-thumbs .detail-sidebar {
         flex-wrap: wrap;
         justify-content: flex-start;
         gap: 14px 22px;
+    }
+
+    .about-contact {
+        align-items: flex-start;
+    }
+
+    .about-contact__emails {
+        align-items: flex-start;
     }
 
     /* Names sit in slot under typewriter; % of .about-floating-names-slot */
