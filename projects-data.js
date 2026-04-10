@@ -34,6 +34,7 @@ window.PORTFOLIO_GALLERY = {
             longDesc: "For people who enjoy walking and drinking coffee",
             desc: "",
             body: "",
+            slides: ["./images/2.jpg", "./images/2.1.jpg", "./images/2.2.png"],
         },
         {
             src: "./images/3.jpg",
