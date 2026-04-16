@@ -788,7 +788,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return performance.now() < suppressMainGalleryClickUntil;
     }
 
-    function loadGalleryContent(category) {
+    function loadGalleryContent(category, silentSync) {
         currentCategory = category;
         currentImages = galleryData[category];
 
@@ -803,7 +803,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Always start at index 0 when switching categories
-        updateGallery(0);
+        if (silentSync) {
+            currentGalleryIndex = 0;
+            if (currentImages[0] && mainImg) {
+                mainImg.src = currentImages[0].src;
+                mainImg.style.opacity = '1';
+            }
+            thumbnails.forEach((t) => t.classList.remove('active'));
+            if (thumbnails[0]) thumbnails[0].classList.add('active');
+        } else {
+            updateGallery(0);
+        }
     }
 
     function updateGallery(index) {
@@ -858,6 +868,9 @@ document.addEventListener('DOMContentLoaded', () => {
             updateGallery(parseInt(thumb.getAttribute('data-index')));
         });
     });
+
+    /* Sync main image + strip with projects-data.js (includes all Design thumbs, e.g. INDIEGO) */
+    loadGalleryContent('design', true);
 
     if (leftArrow) {
         leftArrow.addEventListener('click', () => {
