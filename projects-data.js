@@ -48,13 +48,13 @@ window.PORTFOLIO_GALLERY = {
             ],
         },
         {
-            src: "./images/3.jpg",
+            src: "./images/3.png",
             title: "Fujii Kaze Poster",
             year: "2025",
             longDesc: "A fan art poster exploring visual hierarchy and design elements",
             desc: "",
             body: "",
-            slides: ["./images/3.jpg", "./images/3.1.jpg"],
+            slides: ["./images/3.png", "./images/3.1.jpg"],
         },
         {
             src: "./images/CS4.jpg",
