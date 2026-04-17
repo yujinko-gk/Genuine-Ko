@@ -795,7 +795,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update all thumbnails with the new category's images
         thumbnails.forEach((thumb, i) => {
             if (currentImages[i]) {
-                thumb.src = currentImages[i].src;
+                const item = currentImages[i];
+                thumb.src = item.thumbSrc || item.src;
                 thumb.style.display = 'block';
             } else {
                 thumb.style.display = 'none'; // Hide if fewer images
@@ -888,6 +889,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function stepMainGallery(delta) {
+        if (!currentImages.length) return;
+        let newIndex = currentGalleryIndex + delta;
+        if (newIndex < 0) newIndex = currentImages.length - 1;
+        if (newIndex >= currentImages.length) newIndex = 0;
+        updateGallery(newIndex);
+    }
+
     // --- Overlay + In-Page Detail Interaction --- //
     const projectOverlay = document.getElementById('project-overlay');
     const overlayTitle = document.getElementById('overlay-title');
@@ -918,7 +927,7 @@ document.addEventListener('DOMContentLoaded', () => {
             detailHero.setAttribute('tabindex', '0');
             detailHero.setAttribute(
                 'aria-label',
-                'Show next image (cycles through project images)'
+                'Show next image. Use Arrow Down for next and Arrow Up for previous.'
             );
         } else {
             detailHero.removeAttribute('role');
@@ -927,12 +936,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function advanceWorkDetailHero(e) {
-        if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
-        if (e.type === 'keydown') e.preventDefault();
+    function goToDetailSlide(nextIndex) {
         if (!detailOpen || !detailHero || detailSlideSources.length <= 1) return;
-        detailSlideIndex = (detailSlideIndex + 1) % detailSlideSources.length;
-        const src = detailSlideSources[detailSlideIndex];
+        const n = detailSlideSources.length;
+        const idx = ((nextIndex % n) + n) % n;
+        detailSlideIndex = idx;
+        const src = detailSlideSources[idx];
         const item = currentImages[currentGalleryIndex];
         fadeSwapImage(detailHero, src, () => {
             detailHero.classList.remove('detail-hero-grow');
@@ -940,12 +949,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         if (detailThumbs) {
             detailThumbs.querySelectorAll('.work-detail-thumb').forEach((b, i) => {
-                b.classList.toggle('active', i === detailSlideIndex);
+                b.classList.toggle('active', i === idx);
             });
         }
-        detailHero.alt = item
-            ? `${item.title} — image ${detailSlideIndex + 1}`
-            : 'Project image';
+        detailHero.alt = item ? `${item.title} — image ${idx + 1}` : 'Project image';
+    }
+
+    function advanceWorkDetailHero(e) {
+        if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
+        if (e.type === 'keydown') e.preventDefault();
+        if (!detailOpen || !detailHero || detailSlideSources.length <= 1) return;
+        goToDetailSlide(detailSlideIndex + 1);
     }
 
     if (detailHero) {
@@ -969,20 +983,40 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.appendChild(img);
 
             btn.addEventListener('click', () => {
-                detailSlideIndex = i;
-                fadeSwapImage(detailHero, src, () => {
-                    detailHero.classList.remove('detail-hero-grow');
-                    requestAnimationFrame(() => detailHero.classList.add('detail-hero-grow'));
-                });
-                detailThumbs.querySelectorAll('.work-detail-thumb').forEach((b) => b.classList.remove('active'));
-                btn.classList.add('active');
-                const cur = currentImages[currentGalleryIndex];
-                if (cur) detailHero.alt = `${cur.title} — image ${i + 1}`;
+                goToDetailSlide(i);
             });
 
             detailThumbs.appendChild(btn);
         });
     }
+
+    document.addEventListener('keydown', (e) => {
+        const el = e.target;
+        if (el && el.closest && el.closest('input, textarea, select, [contenteditable="true"]')) {
+            return;
+        }
+
+        if (detailOpen) {
+            if (detailSlideSources.length > 1 && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+                e.preventDefault();
+                const delta = e.key === 'ArrowDown' ? 1 : -1;
+                goToDetailSlide(detailSlideIndex + delta);
+                return;
+            }
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                e.preventDefault();
+                return;
+            }
+            return;
+        }
+
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+
+        if (!document.body.classList.contains('work-mode')) return;
+
+        e.preventDefault();
+        stepMainGallery(e.key === 'ArrowRight' ? 1 : -1);
+    });
 
     function clearInPageDetailFooter() {
         if (detailArtworkRevealTimeout) {
@@ -1096,7 +1130,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         previousWorkIndex = currentGalleryIndex;
         const slides = Array.isArray(item.slides) && item.slides.length > 0 ? item.slides : [item.src];
-        const activeSlide = Math.max(0, slides.indexOf(item.src));
+        let activeSlide = Math.max(0, slides.indexOf(item.src));
+        if (
+            typeof item.detailStartIndex === 'number' &&
+            !Number.isNaN(item.detailStartIndex)
+        ) {
+            activeSlide = Math.max(
+                0,
+                Math.min(item.detailStartIndex, slides.length - 1)
+            );
+        }
         detailSlideSources = slides;
         detailSlideIndex = activeSlide;
 

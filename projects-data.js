@@ -3,6 +3,8 @@
  * Optional `shortDesc` — legacy; gallery overlay shows title + “View Detail” only.
  * Optional `longDesc` — design: in-page detail on index; fine art: project-detail.html only (`desc`/`longDesc`).
  * Optional `body` — extra copy on the standalone detail page.
+ * Optional `thumbSrc` — strip thumbnail only; falls back to `src` for main image.
+ * Optional `detailStartIndex` — 0-based index into `slides` when opening detail (else matches `src`).
  * Optional `slides` — if set, detail page left rail shows only these images for this project.
  * Optional `artworkSpec.lines` — fine art only: medium / dimensions (bottom-right under hero).
  * Optional `artworkDescription` — fine art only: short copy under hero (bottom-left).
@@ -27,7 +29,8 @@ window.PORTFOLIO_GALLERY = {
             ],
         },
         {
-            src: "./images/INDIEGO/PF1.png",
+            src: "./images/INDIEGO/PF4.png",
+            detailStartIndex: 0,
             title: "INDIEGO",
             year: "2026",
             shortDesc: "Music festival design and branding.",
@@ -54,7 +57,8 @@ window.PORTFOLIO_GALLERY = {
             slides: ["./images/3.jpg", "./images/3.1.jpg"],
         },
         {
-            src: "./images/4.jpg",
+            src: "./images/CS4.jpg",
+            detailStartIndex: 0,
             title: "Crescendo",
             year: "2024",
             longDesc:

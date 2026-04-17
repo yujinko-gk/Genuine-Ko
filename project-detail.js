@@ -197,8 +197,17 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    const idx = slideSources.indexOf(project.src);
-    const initialSlide = idx >= 0 ? idx : 0;
+    let initialSlide = slideSources.indexOf(project.src);
+    if (initialSlide < 0) initialSlide = 0;
+    if (
+        typeof project.detailStartIndex === "number" &&
+        !Number.isNaN(project.detailStartIndex)
+    ) {
+        initialSlide = Math.max(
+            0,
+            Math.min(project.detailStartIndex, slideSources.length - 1)
+        );
+    }
 
     setMeta();
     setHeroFromSlide(initialSlide);
@@ -210,7 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
         hero.setAttribute("tabindex", "0");
         hero.setAttribute(
             "aria-label",
-            "Show next image (cycles through project images)"
+            "Show next image. Use Arrow Down for next and Arrow Up for previous."
         );
 
         function goToNextSlide() {
@@ -222,6 +231,27 @@ document.addEventListener("DOMContentLoaded", () => {
             if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
                 goToNextSlide();
+            }
+        });
+
+        function goToPrevSlide() {
+            const n = slideSources.length;
+            setHeroFromSlide((activeSlide - 1 + n) % n);
+        }
+
+        document.addEventListener("keydown", (e) => {
+            const t = e.target;
+            if (
+                t &&
+                t.closest &&
+                t.closest('input, textarea, select, [contenteditable="true"]')
+            ) {
+                return;
+            }
+            if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                e.preventDefault();
+                if (e.key === "ArrowDown") goToNextSlide();
+                else goToPrevSlide();
             }
         });
     }

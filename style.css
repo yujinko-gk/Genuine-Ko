@@ -659,13 +659,24 @@ body.work-mode #work-gallery {
     font-size: 1.2rem;
     font-weight: 300;
     color: var(--text-color);
-    opacity: 0.3;
-    transition: opacity 0.3s;
+    opacity: 1;
+    align-self: flex-start;
+    transform: scale(1);
+    transform-origin: left center;
+    transition: transform 0.3s ease;
+    cursor: pointer;
 }
 
-.category-item.active,
-.category-item:hover {
-    opacity: 1;
+.category-item.active {
+    transform: scale(1.14);
+}
+
+.category-item:hover:not(.active) {
+    transform: scale(1.06);
+}
+
+.category-item:active:not(.active) {
+    transform: scale(1.08);
 }
 
 .gallery-content {
@@ -781,17 +792,19 @@ body.work-mode #work-gallery {
     width: 110px;
     height: 68px;
     object-fit: contain;
-    opacity: 0.5;
-    filter: grayscale(100%);
-    transition: all 0.4s ease;
+    opacity: 1;
+    filter: none;
+    transform: scale(1);
+    transition: transform 0.4s ease;
     cursor: none;
 }
 
-.thumb.active,
-.thumb:hover {
-    opacity: 1;
-    filter: grayscale(0%);
-    transform: scale(1.05);
+.thumb.active {
+    transform: scale(1.12);
+}
+
+.thumb:hover:not(.active) {
+    transform: scale(1.04);
 }
 
 /* In-page detail mode (opens from View Detail) */
@@ -881,9 +894,10 @@ body.work-mode #work-gallery {
     background: transparent;
     padding: 0;
     overflow: hidden;
-    opacity: 0.42;
-    filter: grayscale(100%);
-    transition: opacity 0.25s ease, filter 0.25s ease, transform 0.25s ease;
+    opacity: 1;
+    filter: none;
+    transform: scale(1);
+    transition: transform 0.25s ease;
 }
 
 .work-detail-thumb img {
@@ -893,11 +907,12 @@ body.work-mode #work-gallery {
     display: block;
 }
 
-.work-detail-thumb.active,
-.work-detail-thumb:hover {
-    opacity: 1;
-    filter: grayscale(0%);
-    transform: scale(1.03);
+.work-detail-thumb.active {
+    transform: scale(1.12);
+}
+
+.work-detail-thumb:hover:not(.active) {
+    transform: scale(1.04);
 }
 
 #work-detail-hero {
@@ -1267,9 +1282,10 @@ body.project-detail-page.project-detail--no-thumbs .detail-sidebar {
     height: 58px;
     overflow: hidden;
     cursor: pointer;
-    opacity: 0.42;
-    filter: grayscale(100%);
-    transition: opacity 0.25s ease, filter 0.25s ease, transform 0.25s ease;
+    opacity: 1;
+    filter: none;
+    transform: scale(1);
+    transition: transform 0.25s ease;
 }
 
 .detail-thumb img {
@@ -1279,11 +1295,12 @@ body.project-detail-page.project-detail--no-thumbs .detail-sidebar {
     object-fit: cover;
 }
 
-.detail-thumb.active,
-.detail-thumb:hover {
-    opacity: 1;
-    filter: grayscale(0%);
-    transform: scale(1.03);
+.detail-thumb.active {
+    transform: scale(1.12);
+}
+
+.detail-thumb:hover:not(.active) {
+    transform: scale(1.04);
 }
 
 .detail-center {
@@ -1686,6 +1703,7 @@ body.project-detail-page.project-detail--no-thumbs .detail-sidebar {
         font-size: 1.05rem;
         white-space: nowrap;
         padding: 0 0.35rem;
+        transform-origin: center center;
     }
 
     .category-item {
@@ -2006,10 +2024,6 @@ body.project-detail-page.project-detail--no-thumbs .detail-sidebar {
     }
 
     .link-item:active {
-        opacity: 1;
-    }
-
-    .category-item:active {
         opacity: 1;
     }
 
