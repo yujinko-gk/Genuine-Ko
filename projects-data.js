@@ -1,22 +1,11 @@
 /**
- * Shared by index (work feed + project-detail pages).
- * On the index Work page, Design and Art are separate feeds (script.js); each uses `PORTFOLIO_FEED_ORDER` filtered to that category.
- * Optional `shortDesc` — legacy; gallery overlay shows title + “View Detail” only.
- * Optional `longDesc` — design: in-page detail on index; fine art: project-detail.html only (`desc`/`longDesc`).
- * Optional `body` — design: second paragraph under hero after `longDesc`; other entries: extra block on standalone detail page.
- * Optional `thumbSrc` — strip thumbnail only; falls back to `src` for main image.
- * Optional `detailStartIndex` — 0-based index into `slides` when opening detail (else matches `src`).
- * Optional `feedBlurb` — design: short copy shown under the image on the index work grid (optional per project).
- * Optional `feedAllSlidesAsMain` — design: if true and `slides` has multiple images, show each slide as a full main image in one grid (no small thumb strip).
- * Optional `youtubeUrl` or `youtubeVideoId` — design: in-page detail shows embedded YouTube instead of hero image (11-char id or youtu.be / watch URL).
- * Optional `detailScrollPage` + `detailArticleHtml` — design: same scroll layout as when `slides` has more than two images (thumb rail hidden; hero = first slide). Optional `detailArticleHtml` is shown above the hero image; remaining slides stack in the article column below the hero.
- * Optional `detailArticleHtmlAfterHero` — design scroll only: HTML shown after the hero image and before the stacked slides (e.g. long essay for one project).
- * Optional `detailArticleStackHeading` — plain text shown as a subheading immediately above the stacked slides (slides after the hero).
- * Optional `detailArticleHtmlAfterFirstStackedImage` — design scroll article: HTML inserted immediately after the first stacked image (slide index 1), before the remaining slides.
- * Optional `slides` — if set, detail page left rail shows only these images for this project.
- * Optional `artworkSpec.lines` — fine art only: medium / dimensions (bottom-right under hero).
- * Optional `artworkDescription` — fine art only: short copy under hero (bottom-left).
- * Design detail pages: `longDesc` or `desc` (bottom-left) and `year` (bottom-right), same footer layout as fine art.
+ * Shared by index (work feed + in-page detail) and project-detail.html.
+ * Field usage (see script.js / project-detail.js):
+ * - `feedBlurb` (design): work feed caption under the image; overrides `longDesc` / `desc` / `shortDesc` when set.
+ * - `longDesc` / `desc` / `shortDesc` (design): feed caption when no `feedBlurb` (`longDesc` first). Fine art feed: `artworkDescription`, else `desc`.
+ * - `longDesc` + `body` (design): in-page / standalone detail footer (#work-detail-artwork-description / #detail-artwork-description) when layout is NOT scroll-page. First paragraph = `longDesc || desc`, second = `body`.
+ * - `detailArticleHtml`, `detailArticleHtmlAfterHero`, `detailArticleHtmlAfterFirstStackedImage`, `detailArticleStackHeading`: scroll-page design detail only (slides > 2 or `detailScrollPage`), via portfolioDetailScrollArticle* helpers.
+ * - `detailDesc` / year in index modal: hidden for design + fine art (copy lives in artwork footer instead).
  */
 window.PORTFOLIO_GALLERY = {
     design: [
@@ -25,8 +14,6 @@ window.PORTFOLIO_GALLERY = {
             title: "Fujii Kaze Poster",
             year: "2025",
             longDesc: "A fan art poster exploring visual hierarchy and design elements",
-            desc: "",
-            body: "",
             detailScrollPage: true,
             detailArticleHtml:
                 "<p>A fan art poster exploring visual hierarchy and design elements</p>",
@@ -36,11 +23,8 @@ window.PORTFOLIO_GALLERY = {
             src: "./images/1.jpg",
             title: "Postcards",
             year: "2024",
-            shortDesc: "Postcards filled with moments that grow more meaningful when shared.",
             longDesc:
                 "Postcards filled with moments that grow more meaningful when shared.",
-            desc: "Postcards filled with moments that grow more meaningful when shared.",
-            body: "",
             slides: [
                 "./images/1.jpg",
                 "./images/PC1.jpg",
@@ -56,10 +40,6 @@ window.PORTFOLIO_GALLERY = {
             year: "2024",
             feedBlurb:
                 "Inspired by my appreciation for the power of music, this project evolved into a brand concept that helps people with verbal communication challenges find their voice.",
-            longDesc:
-                "Inspired by my appreciation for the power of music, this project evolved into a brand concept that helps people with verbal communication challenges find their voice.",
-            desc: "Inspired by my appreciation for the power of music, this project evolved into a brand concept that helps people with verbal communication challenges find their voice.",
-            body: "",
             detailArticleHtml:
                 "<p>Inspired by my appreciation for the power of music, this project evolved into a brand concept that helps people with verbal communication challenges find their voice.</p>",
             slides: [
@@ -76,8 +56,6 @@ window.PORTFOLIO_GALLERY = {
             year: "2026",
             longDesc:
                 "Social media content design for a K-pop band at USC, with a Y2K theme.",
-            desc: "Social media content design for a K-pop performance group at USC, with a Y2K theme.",
-            body: "",
             slides: ["./images/GENUINE.jpg", "./images/AMANDA.jpg", "./images/LILLIAN.jpg"],
         },
         {
@@ -87,11 +65,6 @@ window.PORTFOLIO_GALLERY = {
             year: "2026",
             feedBlurb:
                 "INDIEGO is a concept music festival identity that moves between curated performances and open competition. The visual system is built on a monochromatic violet scale, mapping how emerging artists begin invisible and become legible over time.",
-            longDesc:
-                "INDIEGO is a concept music festival identity that moves between curated performances and open competition. The visual system is built on a monochromatic violet scale, mapping how emerging artists begin invisible and become legible over time.",
-            desc:
-                "INDIEGO is a concept music festival identity that moves between curated performances and open competition. The visual system is built on a monochromatic violet scale, mapping how emerging artists begin invisible and become legible over time.",
-            body: "",
             slides: [
                 "./images/INDIEGO/PF1.png",
                 "./images/INDIEGO/PF2.png",
@@ -108,8 +81,6 @@ window.PORTFOLIO_GALLERY = {
             year: "2026",
             longDesc:
                 "A kitbashed 3D object merging the Playmobil aesthetic with a drum kit.",
-            desc: "A kitbashed 3D object merging the Playmobil aesthetic with a drum kit.",
-            body: "",
             detailScrollPage: true,
             slides: ["./images/UO.png", "./images/Unreal Object.obj"],
         },
@@ -119,11 +90,6 @@ window.PORTFOLIO_GALLERY = {
             year: "2026",
             feedBlurb:
                 "This infographic traces the ongoing development of devices and platforms that shape how listeners access music. From MP3 players and iPods to streaming apps and short-form video platforms, each technological shift has changed not only how music is distributed but also how it is consumed.",
-            longDesc:
-                "This infographic traces the ongoing development of devices and platforms that shape how listeners access music. From MP3 players and iPods to streaming apps and short-form video platforms, each technological shift has changed not only how music is distributed but also how it is consumed. The rules of the system have gradually shifted from ownership (buying albums or downloads) to access (streaming subscriptions), and now to algorithm-driven exposure, where visibility depends on data, engagement, and virality rather than direct purchase.",
-            desc:
-                "This infographic traces the ongoing development of devices and platforms that shape how listeners access music. From MP3 players and iPods to streaming apps and short-form video platforms, each technological shift has changed not only how music is distributed but also how it is consumed. The rules of the system have gradually shifted from ownership (buying albums or downloads) to access (streaming subscriptions), and now to algorithm-driven exposure, where visibility depends on data, engagement, and virality rather than direct purchase.",
-            body: "",
             detailArticleHtmlAfterHero:
                 "<p>Today, the music industry is facing a new challenge with AI-generated music. Major record labels such as UMG, Sony, and Warner have filed lawsuits against AI music platforms like Suno and Udio over copyright ownership, and the legal battle is still ongoing.</p>" +
                 "<p>This system works through the constant development of devices and platforms that shape how listeners access music. From MP3 players and iPods to streaming apps and short-form video platforms, each technological shift has changed not only how music is distributed but also how it is consumed. The rules of the system have gradually shifted from ownership (buying albums or downloads) to access (streaming subscriptions), and now to algorithm-driven exposure, where visibility depends on data, engagement, and virality rather than direct purchase.</p>" +
@@ -143,8 +109,6 @@ window.PORTFOLIO_GALLERY = {
         {
             src: "./images/art1.jpg",
             title: "愛 (the invisible)",
-            desc: "",
-            body: "",
             artworkDescription:
                 "Words cannot fully capture the nature of love and affection across time and moments.",
             artworkSpec: {
@@ -154,8 +118,6 @@ window.PORTFOLIO_GALLERY = {
         {
             src: "./images/art2.jpg",
             title: "The Elusive",
-            desc: "",
-            body: "",
             artworkDescription:
                 "People sometimes treat others as extensions of themselves, but we all live our own lives. No one can truly be held.",
             artworkSpec: {
@@ -165,8 +127,6 @@ window.PORTFOLIO_GALLERY = {
         {
             src: "./images/art3.jpg",
             title: "Remnants of Being",
-            desc: "",
-            body: "",
             artworkDescription:
                 "A pen drawing capturing the traces left behind in the bathroom of Mosaic House, Venice, CA.",
             artworkSpec: {
@@ -176,8 +136,6 @@ window.PORTFOLIO_GALLERY = {
         {
             src: "./images/art4.jpg",
             title: "Natural Forms",
-            desc: "",
-            body: "",
             artworkDescription:
                 "An abstract exploration of natural forms inspired by the patterns and shapes found in nature.",
             artworkSpec: {
@@ -188,8 +146,6 @@ window.PORTFOLIO_GALLERY = {
             src: "./images/anxiety.png",
             title: "Anxiety: Experimental Video Art",
             year: "2025",
-            desc: "",
-            body: "",
             slides: ["./images/anxiety.png"],
             youtubeUrl: "https://youtu.be/QlxtINml57g?si=HdDlkoYDDYY6AhW1",
             artworkDescription: "",
