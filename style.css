@@ -378,10 +378,17 @@ body.work-detail-modal-open {
     box-sizing: border-box;
 }
 
+/* In work mode, keep About under the gallery in the stacking order. Same z-index + later in DOM
+   can leave a full-screen transparent layer behaving badly on some browsers (feed looks blank). */
+body.work-mode #about-section {
+    z-index: 0;
+}
+
 body.about-mode #about-section {
     opacity: 1;
     pointer-events: none;
     background-color: #ffffff;
+    z-index: 10;
 }
 
 body.about-mode #about-section * {
@@ -962,8 +969,8 @@ body.work-mode #work-gallery {
 
 .work-detail-close {
     position: absolute;
-    top: 6px;
-    right: 6px;
+    top: max(6px, env(safe-area-inset-top, 0px));
+    right: max(6px, env(safe-area-inset-right, 0px));
     z-index: 4;
     width: 44px;
     height: 44px;
@@ -1012,6 +1019,10 @@ body.work-mode #work-gallery {
 
 .work-detail-layer.work-detail--scroll-page .work-detail-dialog {
     max-height: min(96dvh, calc(100dvh - 2 * clamp(8px, 3vmin, 20px)));
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     /* Lighter blur while scrolling — full backdrop-filter is expensive to composite */
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
@@ -1021,12 +1032,55 @@ body.work-mode #work-gallery {
     display: flex;
     flex-direction: column;
     align-items: stretch;
+    /* Space between .work-detail-main (hero) and .work-detail-article (stack) — they are siblings, not inside .work-detail-main__column */
+    gap: 2rem;
+    row-gap: 2rem;
     /* Single scroll surface: panel scrolls inside fixed-height dialog */
     overscroll-behavior: contain;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Long scroll layouts: top-align so intro + hero don’t vertically center (reads as overlap on phones) */
+/* Main must not shrink below hero height — min-height:0 + flex-shrink on panel children makes the hero
+   paint past a too-short .work-detail-main box and the next sibling (.work-detail-article) starts too high (overlap). */
+.work-detail-layer.work-detail--scroll-page .work-detail-main {
+    justify-content: flex-start;
+    align-items: stretch;
+    flex: 0 0 auto;
+    flex-shrink: 0;
+    min-height: min-content;
+}
+
+.work-detail-layer.work-detail--scroll-page .work-detail-main__column {
+    align-items: stretch;
+    gap: 1.25rem;
+    flex-shrink: 0;
+    min-height: min-content;
+}
+
+.work-detail-layer.work-detail--scroll-page #work-detail-hero {
+    transform: none;
+    opacity: 1;
+    transition: none;
+    position: relative;
+    z-index: 0;
+    display: block;
+    /* Base #work-detail-hero box-shadow draws outside the layout box and paints over the next image — remove for scroll stacks */
+    box-shadow: none;
+    margin-bottom: clamp(1.25rem, 4vw, 2rem);
+    flex-shrink: 0;
+    align-self: stretch;
 }
 
 .work-detail-article {
     max-width: min(920px, 72vw);
+    box-sizing: border-box;
     width: 100%;
     margin: 1.35rem auto 0;
     padding: 0 0.15rem;
@@ -1101,15 +1155,59 @@ body.work-mode #work-gallery {
     object-fit: contain;
 }
 
-/* Scroll-page design detail: match stacked slides to hero sizing (hero is height-capped; width:100% alone made later slides read larger/smaller) */
+/*
+ * Scroll-page detail (index modal): same visual order as desktop — one vertical column, block flow only.
+ * Narrow viewports are a scaled-down version: scroll the panel; each image sits below the previous (no overlap).
+ */
+.work-detail-layer.work-detail--scroll-page .work-detail-article:not([hidden]) {
+    display: block;
+    min-width: 0;
+    overflow: visible;
+}
+
+.work-detail-layer.work-detail--scroll-page .work-detail-article .work-detail-article__fig {
+    display: block;
+    margin: 0 0 1.5rem;
+    width: 100%;
+    max-width: 100%;
+    overflow: visible;
+    position: relative;
+    z-index: auto;
+}
+
+.work-detail-layer.work-detail--scroll-page .work-detail-article .work-detail-article__fig:last-child {
+    margin-bottom: 0;
+}
+
+.work-detail-layer.work-detail--scroll-page .work-detail-article .work-detail-article__asset {
+    display: block;
+    margin: 0 0 1.5rem;
+    overflow: visible;
+}
+
+.work-detail-layer.work-detail--scroll-page .work-detail-article .work-detail-article__asset:last-child {
+    margin-bottom: 0;
+}
+
 .work-detail-layer.work-detail--scroll-page .work-detail-article img.work-detail-article__img {
-    width: auto;
-    max-width: min(920px, 100%);
-    max-height: min(72vh, 680px);
+    display: block;
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    max-height: none;
     height: auto;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0;
     object-fit: contain;
+}
+
+.work-detail-layer.work-detail--scroll-page .work-detail-article h3.work-detail-article__stack-heading {
+    margin: 0 0 1.25rem;
+}
+
+/* Hero lives in .work-detail-main; stack lives in sibling .work-detail-article — margin-top here fought panel gap; use gap only */
+.work-detail-layer.work-detail--scroll-page .work-detail-article {
+    margin-top: 0;
+    overflow: visible;
 }
 
 .work-detail-article__placeholder {
@@ -1223,7 +1321,7 @@ body.work-mode #work-gallery {
 .work-detail-layer.work-detail--scroll-page .work-detail-article-lead {
     width: 100%;
     max-width: min(920px, 72vw);
-    margin: 0 auto 1.1rem;
+    margin: 0 auto;
     padding: 0 0.15rem;
     box-sizing: border-box;
 }
@@ -1249,7 +1347,7 @@ body.work-mode #work-gallery {
 .work-detail-layer.work-detail--scroll-page .work-detail-article-after-hero {
     width: 100%;
     max-width: min(920px, 72vw);
-    margin: 0 auto 1.25rem;
+    margin: 0 auto;
     padding: 0 0.15rem;
     box-sizing: border-box;
 }
@@ -1422,6 +1520,12 @@ body.work-mode #work-gallery {
         padding: 2.5rem 0.85rem 1rem;
     }
 
+    .work-detail-layer.work-detail--scroll-page .work-detail-panel {
+        padding-top: max(2.85rem, calc(env(safe-area-inset-top, 0px) + 2.35rem));
+        padding-left: max(0.85rem, env(safe-area-inset-left, 0px));
+        padding-right: max(0.85rem, env(safe-area-inset-right, 0px));
+    }
+
     /* Title (top) → hero vertically centered in remaining space → thumbs → copy */
     .work-detail-heading {
         order: 1;
@@ -1440,6 +1544,22 @@ body.work-mode #work-gallery {
         flex-direction: column;
         align-items: center;
         justify-content: center;
+    }
+
+    .work-detail-layer.work-detail--scroll-page .work-detail-main {
+        justify-content: flex-start;
+        align-items: stretch;
+        flex: 0 0 auto;
+        flex-shrink: 0;
+        /* Override .work-detail-main { min-height: 0 } — else hero overflows and CS1 overlaps */
+        min-height: min-content;
+    }
+
+    .work-detail-layer.work-detail--scroll-page .work-detail-main__column {
+        align-items: stretch;
+        gap: 1.25rem;
+        flex-shrink: 0;
+        min-height: min-content;
     }
 
     .work-detail-thumbs {
@@ -1476,8 +1596,67 @@ body.work-mode #work-gallery {
     .work-detail-article {
         order: 4;
         max-width: 100%;
+        width: 100%;
+        box-sizing: border-box;
         margin-top: 1rem;
         padding: 0 0.35rem;
+        overflow: hidden;
+    }
+
+    .work-detail-layer.work-detail--scroll-page .work-detail-article {
+        margin-top: 0;
+        overflow: visible;
+    }
+
+    .work-detail-article img,
+    .work-detail-article .work-detail-article__img {
+        max-width: 100%;
+        width: 100%;
+        height: auto;
+        display: block;
+        box-sizing: border-box;
+    }
+
+    .work-detail-article__fig {
+        max-width: 100%;
+        width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+
+    .work-detail-layer.work-detail--scroll-page .work-detail-article__fig {
+        overflow: visible;
+    }
+
+    /* Long scroll detail: dialog fills width; panel is the scroll surface; images stack in document order */
+    .work-detail-layer.work-detail--scroll-page .work-detail-dialog {
+        width: 100%;
+        max-width: 100%;
+        border-radius: 0;
+        max-height: min(
+            100dvh,
+            calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))
+        );
+    }
+
+    .work-detail-layer.work-detail--scroll-page .work-detail-panel {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+        gap: 2rem;
+        row-gap: 2rem;
+    }
+
+    .work-detail-layer.work-detail--scroll-page #work-detail-hero {
+        overflow: visible;
+        max-width: 100%;
+        width: 100%;
+        height: auto;
+        max-height: min(78vh, 720px);
+        object-fit: contain;
+        box-shadow: none;
     }
 
     .work-detail-meta {
@@ -1493,6 +1672,17 @@ body.work-mode #work-gallery {
     #work-detail-hero {
         max-height: 50vh;
         min-height: 200px;
+        max-width: 100%;
+        width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+
+    #work-detail-hero img {
+        max-width: 100%;
+        width: 100%;
+        height: auto;
+        display: block;
     }
 }
 
@@ -1616,6 +1806,7 @@ body.project-detail-page.project-detail--scroll-page .detail-main {
 
 body.project-detail-page.project-detail--scroll-page .detail-center {
     grid-area: center;
+    gap: 1.25rem;
 }
 
 body.project-detail-page.project-detail--scroll-page .detail-article {
@@ -1638,6 +1829,13 @@ body.project-detail-page.project-detail--scroll-page .detail-body {
 
 body.project-detail-page.project-detail--scroll-page .detail-artwork-footer {
     display: none;
+}
+
+body.project-detail-page.project-detail--scroll-page #detail-hero {
+    transform: none;
+    opacity: 1;
+    transition: none;
+    box-shadow: none;
 }
 
 .detail-longform {
@@ -1701,19 +1899,44 @@ body.project-detail-page.project-detail--scroll-page .detail-artwork-footer {
     object-fit: contain;
 }
 
+body.project-detail-page.project-detail--scroll-page .detail-longform:not([hidden]) {
+    display: block;
+    min-width: 0;
+    overflow: visible;
+}
+
+body.project-detail-page.project-detail--scroll-page .detail-longform .work-detail-article__fig {
+    display: block;
+    margin: 0 0 1.5rem;
+    width: 100%;
+    max-width: 100%;
+    overflow: visible;
+    position: relative;
+    z-index: auto;
+}
+
+body.project-detail-page.project-detail--scroll-page .detail-longform .work-detail-article__fig:last-child {
+    margin-bottom: 0;
+}
+
 body.project-detail-page.project-detail--scroll-page .detail-longform img.work-detail-article__img {
-    width: auto;
-    max-width: min(920px, 100%);
-    max-height: min(72vh, 680px);
+    display: block;
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    max-height: none;
     height: auto;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0;
     object-fit: contain;
+}
+
+body.project-detail-page.project-detail--scroll-page .detail-longform h3.work-detail-article__stack-heading {
+    margin: 0 0 1.25rem;
 }
 
 body.project-detail-page.project-detail--scroll-page .detail-article-lead {
     width: 100%;
-    margin: 0 0 1.1rem;
+    margin: 0;
     box-sizing: border-box;
 }
 
@@ -1723,7 +1946,7 @@ body.project-detail-page.project-detail--scroll-page .detail-article-lead:not([h
 
 body.project-detail-page.project-detail--scroll-page .detail-article-after-hero {
     width: 100%;
-    margin: 0 0 1.25rem;
+    margin: 0;
     box-sizing: border-box;
 }
 
@@ -2281,6 +2504,19 @@ body.project-detail-page.project-detail--youtube .detail-figure {
 
     .work-detail-main__column {
         align-items: center;
+    }
+
+    .work-detail-layer.work-detail--scroll-page .work-detail-main {
+        justify-content: flex-start;
+        flex: 0 0 auto;
+        flex-shrink: 0;
+        min-height: min-content;
+    }
+
+    .work-detail-layer.work-detail--scroll-page .work-detail-main__column {
+        align-items: stretch;
+        flex-shrink: 0;
+        min-height: min-content;
     }
 
     #work-detail-hero {

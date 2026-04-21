@@ -34,7 +34,7 @@ window.PORTFOLIO_GALLERY = {
             ],
         },
         {
-            src: "./images/CS4.jpg",
+            src: "./images/4.jpg",
             detailStartIndex: 0,
             title: "Crescendo",
             year: "2024",
@@ -42,12 +42,13 @@ window.PORTFOLIO_GALLERY = {
                 "Inspired by my appreciation for the power of music, this project evolved into a brand concept that helps people with verbal communication challenges find their voice.",
             detailArticleHtml:
                 "<p>Inspired by my appreciation for the power of music, this project evolved into a brand concept that helps people with verbal communication challenges find their voice.</p>",
+            /* Detail order: title → intro text → 4.jpg (hero) → CS1–CS4 (stacked); slice(1) = CS1…CS4 */
             slides: [
                 "./images/4.jpg",
                 "./images/CS1.jpg",
                 "./images/CS2.jpg",
-                "./images/CS4.jpg",
                 "./images/CS3.jpg",
+                "./images/CS4.jpg",
             ],
         },
         {
