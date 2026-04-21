@@ -20,9 +20,29 @@
     <main class="detail-main">
         <aside class="detail-sidebar" id="detail-thumbs" aria-label="Project images"></aside>
         <section class="detail-center">
+            <div class="detail-page-video" id="detail-page-video" hidden>
+                <iframe
+                    id="detail-page-youtube"
+                    class="detail-page-youtube"
+                    title="Project video"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowfullscreen
+                    loading="lazy"></iframe>
+            </div>
+            <div
+                class="detail-article-lead"
+                id="detail-article-lead"
+                hidden
+                aria-label="Project introduction"></div>
             <figure class="detail-figure">
                 <img src="" alt="" id="detail-hero">
             </figure>
+            <div
+                class="detail-article-after-hero"
+                id="detail-article-after-hero"
+                hidden
+                aria-label="Project essay"></div>
             <div class="detail-artwork-footer">
                 <div class="detail-artwork-description" id="detail-artwork-description" hidden></div>
                 <div class="detail-artwork-spec" id="detail-artwork-spec" hidden></div>
@@ -36,9 +56,17 @@
                 <p id="detail-body"></p>
             </div>
         </article>
+        <div
+            class="detail-longform"
+            id="detail-longform"
+            hidden
+            aria-label="Project write-up"></div>
     </main>
 
     <script src="projects-data.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+    <script src="obj-viewer.js"></script>
     <script src="project-detail.js"></script>
 </body>
 

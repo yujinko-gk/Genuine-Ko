@@ -1,9 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    if (window.location.hash === '#work') {
-        document.body.classList.remove('about-mode');
-        document.body.classList.add('work-mode');
-    }
-
     const useFinePointerChrome =
         window.matchMedia('(pointer: fine)').matches &&
         window.matchMedia('(hover: hover)').matches;
@@ -39,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const attachHoverEffects = () => {
             const interactiveElements = document.querySelectorAll(
-                'a, button, .interactive, .thumb, .main-title, .category-item'
+                'a, button, .interactive, .main-title, .site-sidebar__social-link, .work-detail-close, .work-feed-item, .work-feed-thumb'
             );
             interactiveElements.forEach((el) => {
                 el.addEventListener('mouseenter', () => follower.classList.add('active'));
@@ -141,15 +136,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         'select',
                         'label',
                         '.link-item',
-                        '.thumb',
-                        '.category-item',
                         '#logo',
                         '.about-inline-link',
-                        '.project-link',
                         '.social-links a',
-                        '#main-gallery-img',
-                        '.floating-text',
+                        '.work-feed-item__media img',
+                        '.work-feed-thumb',
                         '.work-detail-thumb',
+                        '#work-detail-close',
+                        '.work-detail-close',
+                        '#work-detail-youtube',
+                        '.work-detail-youtube',
                         '.detail-back',
                         '.detail-thumb',
                     ].join(', ')
@@ -170,11 +166,6 @@ document.addEventListener('DOMContentLoaded', () => {
         );
     }
 
-    setTimeout(() => {
-        const mainContent = document.querySelector('.hidden-initially');
-        if (mainContent) mainContent.classList.add('visible');
-    }, 100);
-
     // --- Drag to draw floating gray lines ---
     const drawLayer = document.getElementById('draw-layer');
     const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -185,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function isInteractiveTarget(target) {
         return Boolean(target.closest(
-            'a, button, input, textarea, select, .thumb, .arrow, .floating-text, .project-overlay, .work-detail-panel, .work-detail-layer, .gallery-categories-sidebar, .about-middle, .about-right, .about-left-instruction, .about-intro-bundle, .about-floating-names-slot'
+            'a, button, input, textarea, select, .work-detail-panel, .work-detail-dialog, .work-detail-layer, #work-detail-close, .work-feed, #about-section, .site-sidebar'
         ));
     }
 
@@ -301,469 +292,76 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Draggable Floating Logic (Restored for About page!) ---
-    const repulseElements = document.querySelectorAll('.repulse');
-    if (repulseElements.length > 0) {
-        const elementsData = Array.from(repulseElements).map(el => {
-            el.style.userSelect = 'none';
-            const data = {
-                el,
-                x: 0, y: 0, vx: 0, vy: 0,
-                ambientPhaseX: Math.random() * Math.PI * 2,
-                ambientPhaseY: Math.random() * Math.PI * 2,
-                ambientSpeedX: 0.5 + Math.random() * 0.5,
-                ambientSpeedY: 0.5 + Math.random() * 0.5,
-            };
-            el.addEventListener('mouseenter', () => follower?.classList.add('active'));
-            el.addEventListener('mouseleave', () => follower?.classList.remove('active'));
-            return data;
-        });
-
-        let draggedData = null;
-        let dragStartX = 0;
-        let dragStartY = 0;
-        let initialDataX = 0;
-        let initialDataY = 0;
-
-        const CLICK_DRAG_THRESHOLD = 12;
-
-        function endFloatDrag(clientX, clientY) {
-            if (!draggedData) return;
-            draggedData.el.style.removeProperty('z-index');
-
-            const dist = Math.hypot(clientX - dragStartX, clientY - dragStartY);
-            if (dist < CLICK_DRAG_THRESHOLD) {
-                elementsData.forEach((data) => {
-                    if (data !== draggedData) data.el.classList.remove('show-meaning');
-                });
-                draggedData.el.classList.toggle('show-meaning');
-            }
-
-            draggedData = null;
-        }
-
-        elementsData.forEach((data) => {
-            data.el.addEventListener('pointerdown', (e) => {
-                if (e.button !== 0) return;
-                e.preventDefault();
-                e.stopPropagation();
-                draggedData = data;
-                dragStartX = e.clientX;
-                dragStartY = e.clientY;
-                initialDataX = data.x;
-                initialDataY = data.y;
-                data.el.style.zIndex = '100';
-                follower?.classList.add('active');
-            });
-        });
-
-        window.addEventListener('pointermove', (e) => {
-            if (!draggedData) return;
-            draggedData.x = initialDataX + (e.clientX - dragStartX);
-            draggedData.y = initialDataY + (e.clientY - dragStartY);
-            draggedData.vx = 0;
-            draggedData.vy = 0;
-        });
-
-        window.addEventListener('pointerup', (e) => {
-            if (!draggedData) return;
-            follower?.classList.remove('active');
-            endFloatDrag(e.clientX, e.clientY);
-        });
-
-        window.addEventListener('pointercancel', (e) => {
-            if (!draggedData) return;
-            follower?.classList.remove('active');
-            endFloatDrag(e.clientX, e.clientY);
-        });
-
-        // Click outside to close all meaning boxes
-        window.addEventListener('mousedown', (e) => {
-            if (!e.target.closest('.floating-text')) {
-                elementsData.forEach(data => data.el.classList.remove('show-meaning'));
-            }
-        });
-
-        function animateFloat() {
-            const time = Date.now() * 0.001;
-            const isAboutMode = document.body.classList.contains('about-mode');
-            const mobileAbout =
-                isAboutMode && window.matchMedia('(max-width: 768px)').matches;
-            const aboutNamesSlot =
-                isAboutMode ? document.getElementById('about-floating-names-slot') : null;
-
-            elementsData.forEach((data) => {
-                data.vx *= 0.985;
-                data.vy *= 0.985;
-
-                if (isAboutMode && draggedData !== data) {
-                    const drift = mobileAbout ? 0.02 : 0.042;
-                    const maxSpeed = mobileAbout ? 0.48 : 0.82;
-                    data.vx += (Math.random() - 0.5) * drift;
-                    data.vy += (Math.random() - 0.5) * drift;
-                    data.vx = Math.max(-maxSpeed, Math.min(maxSpeed, data.vx));
-                    data.vy = Math.max(-maxSpeed, Math.min(maxSpeed, data.vy));
-
-                    if (!aboutNamesSlot) {
-                        const floatRect = data.el.getBoundingClientRect();
-                        const pad = 40;
-                        if (floatRect.right < -pad) data.x += window.innerWidth + floatRect.width + pad * 2;
-                        if (floatRect.left > window.innerWidth + pad) data.x -= window.innerWidth + floatRect.width + pad * 2;
-                        if (floatRect.bottom < -pad) data.y += window.innerHeight + floatRect.height + pad * 2;
-                        if (floatRect.top > window.innerHeight + pad) data.y -= window.innerHeight + floatRect.height + pad * 2;
-                    }
-                }
-
-                data.x += data.vx;
-                data.y += data.vy;
-                const isDraggingThis = draggedData === data;
-                const ambX = mobileAbout ? 10 : 18;
-                const ambY = mobileAbout ? 12 : 22;
-                const floatX = isDraggingThis ? 0 : Math.sin(time * data.ambientSpeedX + data.ambientPhaseX) * ambX;
-                const floatY = isDraggingThis ? 0 : Math.cos(time * data.ambientSpeedY + data.ambientPhaseY) * ambY;
-
-                data.el.style.transform = `translate(${data.x + floatX}px, ${data.y + floatY}px)`;
-
-                if (aboutNamesSlot && draggedData !== data) {
-                    const sr = aboutNamesSlot.getBoundingClientRect();
-                    if (sr.width < 12 || sr.height < 12) return;
-                    const pad = 6;
-                    let r = data.el.getBoundingClientRect();
-                    let dy = 0;
-                    if (r.bottom > sr.bottom - pad) dy -= r.bottom - (sr.bottom - pad);
-                    if (r.top < sr.top + pad) dy += sr.top + pad - r.top;
-                    if (dy !== 0) {
-                        data.y += dy;
-                        data.vy *= 0.5;
-                        data.el.style.transform = `translate(${data.x + floatX}px, ${data.y + floatY}px)`;
-                        r = data.el.getBoundingClientRect();
-                    }
-                    let dx = 0;
-                    if (r.right > sr.right - pad) dx -= r.right - (sr.right - pad);
-                    if (r.left < sr.left + pad) dx += sr.left + pad - r.left;
-                    if (dx !== 0) {
-                        data.x += dx;
-                        data.vx *= 0.5;
-                        data.el.style.transform = `translate(${data.x + floatX}px, ${data.y + floatY}px)`;
-                    }
-                }
-            });
-            requestAnimationFrame(animateFloat);
-        }
-        setTimeout(animateFloat, 500);
-    }
-
-    // --- Scattered Typing Ambient Logic ---
-    const mainElement = document.querySelector('main');
-    const scatteredContainer = document.createElement('div');
-    scatteredContainer.id = 'scattered-words-container';
-    if (mainElement) {
-        mainElement.prepend(scatteredContainer);
-    }
-
-    const scatterWordsList = [
-        "unspoken", "unwritten", "untold", "unseen", "unnamed",
-        "overlooked", "silence", "margin", "blank", "pause",
-        "void", "gap", "invisible", "mundane", "invisible", "elusive"
-    ];
-
-    let scatterSessionId = 0;
-
-    /**
-     * Edge “scattered” words on the home screen — edit these values only.
-     *
-     * staggerStepMs / staggerWindowMs — Word #i is scheduled at (i * step + random 0..window) ms
-     *   after scatter starts. Raise these to slow how often *new* words start (does not change typing speed).
-     * introDelayMs — ms after page load before the first scatter attempts (after intro sentence).
-     * maxOnScreen — hard cap on how many words can exist at once (typing + visible + fading).
-     * charDelayMin + charDelayRange — ms per typed letter for edge words (min + random up to range).
-     * holdMsMin / holdMsRange — ms the full word stays before fading.
-     * fadeMs — should match .scattered-word { transition: opacity … } in style.css (same milliseconds).
-     */
-    const SCATTER_CONFIG = {
-        introDelayMs: 2400,
-        staggerStepMs: 900,
-        staggerWindowMs: 2800,
-        gridWordCount: 400,
-        maxOnScreen: 5,
-        charDelayMin: 110,
-        charDelayRange: 95,
-        holdMsMin: 500,
-        holdMsRange: 380,
-        fadeMs: 400,
-        capRetryMsMin: 200,
-        capRetryMsRange: 180,
-        placementRetryMs: 250,
-    };
-
-    function scatteredWordOnScreenCount() {
-        if (!scatteredContainer) return 0;
-        return scatteredContainer.querySelectorAll('.scattered-word').length;
-    }
-
-    function spawnOneScatteredWord(session) {
-        const alive = () => session === scatterSessionId;
-        if (!alive()) return;
-
-        if (document.body.classList.contains('work-mode') || document.body.classList.contains('about-mode')) {
-            return;
-        }
-
-        if (scatteredWordOnScreenCount() >= SCATTER_CONFIG.maxOnScreen) {
-            setTimeout(() => {
-                if (alive()) spawnOneScatteredWord(session);
-            }, SCATTER_CONFIG.capRetryMsMin + Math.random() * SCATTER_CONFIG.capRetryMsRange);
-            return;
-        }
-
-        const wordObj = document.createElement('div');
-        wordObj.className = 'scattered-word';
-
-        let randX_px = 0, randY_px = 0;
-        let randX_pct = 0, randY_pct = 0;
-        let attempts = 0;
-
-        while (attempts < 30) {
-            const zone = Math.floor(Math.random() * 4);
-            if (zone === 0) {
-                randX_pct = Math.random() * 20 + 5;
-                randY_pct = Math.random() * 90 + 5;
-            } else if (zone === 1) {
-                randX_pct = Math.random() * 20 + 75;
-                randY_pct = Math.random() * 90 + 5;
-            } else if (zone === 2) {
-                randX_pct = Math.random() * 50 + 25;
-                randY_pct = Math.random() * 15 + 5;
-            } else {
-                randX_pct = Math.random() * 50 + 25;
-                randY_pct = Math.random() * 15 + 80;
-            }
-
-            randX_px = (randX_pct / 100) * window.innerWidth;
-            randY_px = (randY_pct / 100) * window.innerHeight;
-
-            const logoEl = document.getElementById('logo');
-            const introEl = document.querySelector('.intro-sentence');
-            const logoRect = logoEl ? logoEl.getBoundingClientRect() : { left: -100, right: -100, top: -100, bottom: -100 };
-            const introRect = introEl ? introEl.getBoundingClientRect() : { left: -100, right: -100, top: -100, bottom: -100 };
-
-            const buffer = 40;
-            const hitLogo = (randX_px > logoRect.left - buffer && randX_px < logoRect.right + buffer && randY_px > logoRect.top - buffer && randY_px < logoRect.bottom + buffer);
-            const hitIntro = (randX_px > introRect.left - buffer && randX_px < introRect.right + buffer && randY_px > introRect.top - buffer && randY_px < introRect.bottom + buffer);
-
-            let hitOtherWord = false;
-            const existingWords = scatteredContainer.querySelectorAll('.scattered-word');
-            for (let i = 0; i < existingWords.length; i++) {
-                const wRect = existingWords[i].getBoundingClientRect();
-                if (randX_px > wRect.left - 80 && randX_px < wRect.right + 80 &&
-                    randY_px > wRect.top - 40 && randY_px < wRect.bottom + 40) {
-                    hitOtherWord = true;
-                    break;
-                }
-            }
-
-            if (!hitLogo && !hitIntro && !hitOtherWord) {
-                break;
-            }
-            attempts++;
-        }
-
-        if (attempts >= 30) {
-            setTimeout(() => {
-                if (alive()) spawnOneScatteredWord(session);
-            }, SCATTER_CONFIG.placementRetryMs);
-            return;
-        }
-
-        wordObj.style.left = randX_pct + '%';
-        wordObj.style.top = randY_pct + '%';
-
-        scatteredContainer.appendChild(wordObj);
-
-        const theWord = scatterWordsList[Math.floor(Math.random() * scatterWordsList.length)];
-        let typeIdx = 0;
-
-        function typeChar() {
-            if (!alive()) return;
-            if (typeIdx < theWord.length) {
-                wordObj.textContent += theWord.charAt(typeIdx);
-                typeIdx++;
-                setTimeout(
-                    typeChar,
-                    SCATTER_CONFIG.charDelayMin + Math.random() * SCATTER_CONFIG.charDelayRange
-                );
-            } else {
-                setTimeout(() => {
-                    if (!alive()) return;
-                    wordObj.style.opacity = 0;
-                    setTimeout(() => {
-                        wordObj.remove();
-                    }, SCATTER_CONFIG.fadeMs);
-                }, SCATTER_CONFIG.holdMsMin + Math.random() * SCATTER_CONFIG.holdMsRange);
-            }
-        }
-
-        typeChar();
-    }
-
-    function startHomeScatterStrands() {
-        scatterSessionId += 1;
-        const session = scatterSessionId;
-        const container = document.getElementById('scattered-words-container');
-        if (container) container.innerHTML = '';
-        setTimeout(() => {
-            if (session !== scatterSessionId) return;
-            for (let i = 0; i < SCATTER_CONFIG.gridWordCount; i++) {
-                const offsetMs =
-                    i * SCATTER_CONFIG.staggerStepMs + Math.random() * SCATTER_CONFIG.staggerWindowMs;
-                setTimeout(() => {
-                    if (session !== scatterSessionId) return;
-                    spawnOneScatteredWord(session);
-                }, offsetMs);
-            }
-        }, SCATTER_CONFIG.introDelayMs);
-    }
-
-    startHomeScatterStrands();
-
     // --- Page Transitions ---
-    const navWork = document.getElementById('nav-work');
+    const navDesign = document.getElementById('nav-design');
+    const navArt = document.getElementById('nav-art');
     const navAbout = document.getElementById('nav-about');
     const logo = document.getElementById('logo');
 
-    const staticTextEl = document.querySelector('.static-text');
-    const fullStaticText = 'What I find in the.........';
-    const INTRO_TYPEWRITER_MS_PER_CHAR = 115;
-    let introTypeGen = 0;
-    let introTypeIndex = 0;
-
-    function runIntroTyping(session) {
-        if (session !== introTypeGen || !staticTextEl) return;
-        if (introTypeIndex >= fullStaticText.length) return;
-        staticTextEl.textContent += fullStaticText.charAt(introTypeIndex);
-        introTypeIndex += 1;
-        setTimeout(() => runIntroTyping(session), INTRO_TYPEWRITER_MS_PER_CHAR);
-    }
-
-    function startIntroTypewriter() {
-        if (!staticTextEl) return;
-        introTypeGen += 1;
-        const session = introTypeGen;
-        introTypeIndex = 0;
-        staticTextEl.textContent = '';
-        setTimeout(() => runIntroTyping(session), 400);
-    }
-
-    startIntroTypewriter();
-
-    // Switch to work mode
-    if (navWork) {
-        navWork.addEventListener('click', (e) => {
-            e.preventDefault();
-            document.body.classList.remove('about-mode');
-            document.body.classList.add('work-mode');
-        });
-    }
-
-    // Switch to about mode
-    let aboutTypeFinished = false;
-    const ABOUT_INSTRUCTION_LINE1 = 'People know me by different names.';
-    const ABOUT_INSTRUCTION_LINE2 = 'Click to explore.';
-
-    function fitAboutInstructionLine1() {
-        const lineEl = document.querySelector('.about-instruction__line--first');
-        if (!lineEl) return;
-        let rem = 1.15;
-        const minRem = 0.56;
-        const step = 0.02;
-        lineEl.style.fontSize = `${rem}rem`;
-        while (lineEl.scrollWidth > lineEl.clientWidth + 1 && rem > minRem) {
-            rem -= step;
-            lineEl.style.fontSize = `${rem}rem`;
-        }
-    }
-
-    let aboutInstructionResizeTimer;
-    window.addEventListener('resize', () => {
-        clearTimeout(aboutInstructionResizeTimer);
-        aboutInstructionResizeTimer = setTimeout(() => {
-            if (document.body.classList.contains('about-mode')) {
-                fitAboutInstructionLine1();
-            }
-        }, 100);
-    });
-
-    if (navAbout) {
-        navAbout.addEventListener('click', (e) => {
-            e.preventDefault();
-            document.body.classList.remove('work-mode');
-            document.body.classList.add('about-mode');
-
-            const line1El = document.getElementById('about-typewriter-line1');
-            const line2El = document.getElementById('about-typewriter-line2');
-            const cursor1 = document.getElementById('about-type-cursor-1');
-            const cursor2 = document.getElementById('about-type-cursor-2');
-            const aboutInstructionBox = document.querySelector('.about-left-instruction');
-            const aboutInstructionInner = document.querySelector('.about-left-instruction__inner');
-
-            if (
-                line1El &&
-                line2El &&
-                cursor1 &&
-                cursor2 &&
-                aboutInstructionBox &&
-                aboutInstructionInner &&
-                !aboutTypeFinished
-            ) {
-                aboutInstructionInner.classList.add('active-obstacle');
-                line1El.textContent = '';
-                line2El.textContent = '';
-                cursor2.hidden = true;
-                cursor1.hidden = false;
-
-                let phase = 1;
-                let index = 0;
-
-                function typeAboutInstruction() {
-                    if (phase === 1) {
-                        if (index < ABOUT_INSTRUCTION_LINE1.length) {
-                            line1El.textContent += ABOUT_INSTRUCTION_LINE1.charAt(index);
-                            index += 1;
-                            fitAboutInstructionLine1();
-                            setTimeout(typeAboutInstruction, 70);
-                        } else {
-                            phase = 2;
-                            index = 0;
-                            cursor1.hidden = true;
-                            cursor2.hidden = false;
-                            setTimeout(typeAboutInstruction, 450);
-                        }
-                    } else if (index < ABOUT_INSTRUCTION_LINE2.length) {
-                        line2El.textContent += ABOUT_INSTRUCTION_LINE2.charAt(index);
-                        index += 1;
-                        setTimeout(typeAboutInstruction, 70);
-                    } else {
-                        aboutTypeFinished = true;
-                        setTimeout(() => {
-                            aboutInstructionInner.classList.remove('active-obstacle');
-                            aboutInstructionBox.classList.add('fade-out');
-                        }, 2500);
-                    }
-                }
-
-                setTimeout(typeAboutInstruction, 1000);
-            }
-        });
-    }
-
-    // --- Gallery Logic ---
-    const mainImg = document.getElementById('main-gallery-img');
-    const thumbnails = document.querySelectorAll('.thumb');
-    const leftArrow = document.querySelector('.arrow-left');
-    const rightArrow = document.querySelector('.arrow-right');
-    const categoryItems = document.querySelectorAll('.category-item');
-
+    // --- Work feed (single scrollable list: custom order, pairs read left → right in the grid) ---
     const galleryData = window.PORTFOLIO_GALLERY || { design: [], fineart: [] };
+
+    /** Matches `title` in projects-data.js: even index = left column, odd = right (each column stacks top → bottom). */
+    const PORTFOLIO_FEED_ORDER = [
+        'Crescendo',
+        'Postcards',
+        '愛 (the invisible)',
+        '3D Unreal Object',
+        'The Elusive',
+        'INDIEGO',
+        'Research Project: The Transformation of the Digital Music Ecosystem',
+        'BAND KORI',
+        'Natural Forms',
+        'Remnants of Being',
+        'Fujii Kaze Poster',
+        'Anxiety',
+    ];
+
+    /** `section`: `design` | `art` (fine art only). Order follows PORTFOLIO_FEED_ORDER within that section. */
+    function mergePortfolioProjects(data, section) {
+        const design = Array.isArray(data.design) ? data.design : [];
+        const fine = Array.isArray(data.fineart) ? data.fineart : [];
+        const d = design.map((p) => ({ ...p, _kind: 'design' }));
+        const f = fine.map((p) => ({ ...p, _kind: 'fineart' }));
+        const sourceList = section === 'art' ? f : d;
+        const byTitle = new Map(sourceList.map((p) => [p.title, p]));
+        const out = [];
+        const seen = new Set();
+        for (const title of PORTFOLIO_FEED_ORDER) {
+            const item = byTitle.get(title);
+            if (item) {
+                out.push(item);
+                seen.add(title);
+            }
+        }
+        sourceList.forEach((p) => {
+            if (!seen.has(p.title)) {
+                seen.add(p.title);
+                out.push(p);
+            }
+        });
+        return out;
+    }
+
+    function projectDisplayYear(item) {
+        const y = item.year;
+        if (y != null && String(y).trim()) return String(y).trim();
+        const lines =
+            item.artworkSpec && Array.isArray(item.artworkSpec.lines) ? item.artworkSpec.lines : [];
+        const first = lines[0];
+        if (first != null && /^\d{4}$/.test(String(first).trim())) return String(first).trim();
+        return '';
+    }
+
+    function projectFeedDescription(item, kind) {
+        if (kind === 'fineart') {
+            const t = (item.artworkDescription || '').trim();
+            if (t) return t;
+            return (item.desc || '').trim();
+        }
+        return (item.longDesc || item.desc || item.shortDesc || '').trim();
+    }
+
     const IMAGE_FADE_MS = 260;
 
     function fadeSwapImage(imgEl, nextSrc, onAfterSwap) {
@@ -776,147 +374,79 @@ document.addEventListener('DOMContentLoaded', () => {
         }, IMAGE_FADE_MS);
     }
 
-    let currentCategory = 'design';
-    let currentImages = galleryData[currentCategory];
+    const aboutPortraitImg = document.querySelector('.about-portrait');
+    const ABOUT_PORTRAIT_SRC = './images/me%204.png';
+    const aboutPortraitPreload = new Image();
+    aboutPortraitPreload.src = ABOUT_PORTRAIT_SRC;
+    if (aboutPortraitPreload.decode) {
+        aboutPortraitPreload.decode().catch(() => {});
+    }
+
+    function applyAboutPortrait() {
+        if (!aboutPortraitImg) return;
+        aboutPortraitImg.src = ABOUT_PORTRAIT_SRC;
+        if (aboutPortraitImg.decode) {
+            aboutPortraitImg.decode().catch(() => {});
+        }
+    }
+
+    const aboutPortraitObserver = new MutationObserver(() => {
+        if (document.body.classList.contains('about-mode')) {
+            applyAboutPortrait();
+        }
+    });
+    aboutPortraitObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    if (document.body.classList.contains('about-mode')) {
+        applyAboutPortrait();
+    }
+
+    let workSection = 'design';
+    let currentImages = [];
     let currentGalleryIndex = 0;
 
-    let suppressMainGalleryClickUntil = 0;
-    function armSuppressMainGalleryClick() {
-        suppressMainGalleryClickUntil = performance.now() + 220;
-    }
-    function isMainGalleryClickSuppressed() {
-        return performance.now() < suppressMainGalleryClickUntil;
-    }
-
-    function loadGalleryContent(category, silentSync) {
-        currentCategory = category;
-        currentImages = galleryData[category];
-
-        // Update all thumbnails with the new category's images
-        thumbnails.forEach((thumb, i) => {
-            if (currentImages[i]) {
-                const item = currentImages[i];
-                thumb.src = item.thumbSrc || item.src;
-                thumb.style.display = 'block';
-            } else {
-                thumb.style.display = 'none'; // Hide if fewer images
-            }
-        });
-
-        // Always start at index 0 when switching categories
-        if (silentSync) {
-            currentGalleryIndex = 0;
-            if (currentImages[0] && mainImg) {
-                mainImg.src = currentImages[0].src;
-                mainImg.style.opacity = '1';
-            }
-            thumbnails.forEach((t) => t.classList.remove('active'));
-            if (thumbnails[0]) thumbnails[0].classList.add('active');
-        } else {
-            updateGallery(0);
-        }
-    }
-
-    function updateGallery(index) {
-        currentGalleryIndex = index;
-
-        // Force close overlay if it's open
-        const overlay = document.getElementById('project-overlay');
-        if (overlay) overlay.classList.remove('active');
-
-        // Smooth crossfade between gallery images
-        fadeSwapImage(mainImg, currentImages[index].src);
-
-        thumbnails.forEach(t => t.classList.remove('active'));
-        if (thumbnails[index]) {
-            thumbnails[index].classList.add('active');
-        }
-    }
-
-    // Category click listeners
-    const galleryContentBox = document.querySelector('.gallery-content');
-
-    categoryItems.forEach(item => {
-        item.addEventListener('click', (e) => {
-            e.stopPropagation();
-            armSuppressMainGalleryClick();
-            if (detailOpen) closeDetailView(false);
-
-            // Update active state in sidebar
-            categoryItems.forEach(c => c.classList.remove('active'));
-            item.classList.add('active');
-
-            // Switch gallery content smoothly
-            const category = item.getAttribute('data-category');
-
-            if (galleryContentBox) {
-                // Fade out the entire right section (main image + thumbnails)
-                galleryContentBox.style.opacity = 0;
-
-                setTimeout(() => {
-                    loadGalleryContent(category);
-                    galleryContentBox.style.opacity = 1;
-                    armSuppressMainGalleryClick();
-                }, 400); // Waits for the CSS fade, then loads and fades back in
-            } else {
-                loadGalleryContent(category);
-            }
-        });
-    });
-
-    thumbnails.forEach(thumb => {
-        thumb.addEventListener('click', () => {
-            updateGallery(parseInt(thumb.getAttribute('data-index')));
-        });
-    });
-
-    /* Sync main image + strip with projects-data.js (includes all Design thumbs, e.g. INDIEGO) */
-    loadGalleryContent('design', true);
-
-    if (leftArrow) {
-        leftArrow.addEventListener('click', () => {
-            let newIndex = currentGalleryIndex - 1;
-            if (newIndex < 0) newIndex = currentImages.length - 1;
-            updateGallery(newIndex);
-        });
-    }
-
-    if (rightArrow) {
-        rightArrow.addEventListener('click', () => {
-            let newIndex = currentGalleryIndex + 1;
-            if (newIndex >= currentImages.length) newIndex = 0;
-            updateGallery(newIndex);
-        });
-    }
-
-    function stepMainGallery(delta) {
-        if (!currentImages.length) return;
-        let newIndex = currentGalleryIndex + delta;
-        if (newIndex < 0) newIndex = currentImages.length - 1;
-        if (newIndex >= currentImages.length) newIndex = 0;
-        updateGallery(newIndex);
-    }
-
-    // --- Overlay + In-Page Detail Interaction --- //
-    const projectOverlay = document.getElementById('project-overlay');
-    const overlayTitle = document.getElementById('overlay-title');
-    const overlayLink = document.getElementById('overlay-link');
+    const workFeed = document.getElementById('work-feed');
 
     const detailLayer = document.getElementById('work-detail-layer');
+    const detailClose = document.getElementById('work-detail-close');
     const detailPanel = document.getElementById('work-detail-panel');
     const detailThumbs = document.getElementById('work-detail-thumbs');
     const detailHero = document.getElementById('work-detail-hero');
+    const detailVideo = document.getElementById('work-detail-video');
+    const detailYoutubeFrame = document.getElementById('work-detail-youtube');
     const detailTitle = document.getElementById('work-detail-title');
     const detailYear = document.getElementById('work-detail-year');
     const detailDesc = document.getElementById('work-detail-desc');
     const workDetailArtworkSpec = document.getElementById('work-detail-artwork-spec');
     const workDetailArtworkDesc = document.getElementById('work-detail-artwork-description');
+    const workDetailArticle = document.getElementById('work-detail-article');
+    const workDetailArticleLead = document.getElementById('work-detail-article-lead');
+    const workDetailArticleAfterHero = document.getElementById('work-detail-article-after-hero');
 
     let detailOpen = false;
     let detailArtworkRevealTimeout = null;
     let previousWorkIndex = 0;
     let detailSlideSources = [];
     let detailSlideIndex = 0;
+
+    function youtubeIdFromItem(obj) {
+        if (!obj) return '';
+        const raw = obj.youtubeVideoId && String(obj.youtubeVideoId).trim();
+        if (raw && /^[a-zA-Z0-9_-]{11}$/.test(raw)) return raw;
+        const url = obj.youtubeUrl && String(obj.youtubeUrl).trim();
+        if (!url) return '';
+        const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|watch\?v=))([a-zA-Z0-9_-]{11})/);
+        return m ? m[1] : '';
+    }
+
+    function resetWorkDetailYoutube() {
+        if (detailYoutubeFrame) detailYoutubeFrame.src = '';
+        if (detailVideo) {
+            detailVideo.hidden = true;
+            detailVideo.classList.remove('detail-hero-grow');
+        }
+        if (detailHero) detailHero.hidden = false;
+        detailLayer?.classList.remove('work-detail--youtube');
+    }
 
     function updateWorkDetailHeroAdvanceState() {
         if (!detailHero) return;
@@ -997,6 +527,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (detailOpen) {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                closeDetailView();
+                return;
+            }
             if (detailSlideSources.length > 1 && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
                 e.preventDefault();
                 const delta = e.key === 'ArrowDown' ? 1 : -1;
@@ -1009,13 +544,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             return;
         }
-
-        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-
-        if (!document.body.classList.contains('work-mode')) return;
-
-        e.preventDefault();
-        stepMainGallery(e.key === 'ArrowRight' ? 1 : -1);
     });
 
     function clearInPageDetailFooter() {
@@ -1036,35 +564,54 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function setInPageDetailFooter(item, category) {
+    function setInPageDetailFooter(item) {
         if (detailArtworkRevealTimeout) {
             clearTimeout(detailArtworkRevealTimeout);
             detailArtworkRevealTimeout = null;
         }
 
-        const isFineArt = category === 'fineart';
-        const isDesign = category === 'design';
+        const isFineArt = item._kind === 'fineart';
+        const isDesign = item._kind === 'design';
 
         if (workDetailArtworkDesc) {
             workDetailArtworkDesc.classList.remove('detail-artwork-description--visible');
-            let descText = '';
-            if (isFineArt) {
-                const raw = item.artworkDescription;
-                if (typeof raw === 'string') descText = raw.trim();
-                else if (raw && typeof raw.text === 'string') descText = raw.text.trim();
-            } else if (isDesign) {
-                descText = (item.longDesc || item.desc || '').trim();
-            }
-            if (!descText) {
-                workDetailArtworkDesc.hidden = true;
-                workDetailArtworkDesc.replaceChildren();
+            if (isDesign) {
+                const primary = (item.longDesc || item.desc || '').trim();
+                const extra = (item.body || '').trim();
+                const paragraphs = [];
+                if (primary) paragraphs.push(primary);
+                if (extra) paragraphs.push(extra);
+                if (!paragraphs.length) {
+                    workDetailArtworkDesc.hidden = true;
+                    workDetailArtworkDesc.replaceChildren();
+                } else {
+                    workDetailArtworkDesc.hidden = false;
+                    workDetailArtworkDesc.replaceChildren();
+                    paragraphs.forEach((text) => {
+                        const p = document.createElement('p');
+                        p.className = 'detail-artwork-description__text';
+                        p.textContent = text;
+                        workDetailArtworkDesc.appendChild(p);
+                    });
+                }
             } else {
-                workDetailArtworkDesc.hidden = false;
-                workDetailArtworkDesc.replaceChildren();
-                const p = document.createElement('p');
-                p.className = 'detail-artwork-description__text';
-                p.textContent = descText;
-                workDetailArtworkDesc.appendChild(p);
+                let descText = '';
+                if (isFineArt) {
+                    const raw = item.artworkDescription;
+                    if (typeof raw === 'string') descText = raw.trim();
+                    else if (raw && typeof raw.text === 'string') descText = raw.text.trim();
+                }
+                if (!descText) {
+                    workDetailArtworkDesc.hidden = true;
+                    workDetailArtworkDesc.replaceChildren();
+                } else {
+                    workDetailArtworkDesc.hidden = false;
+                    workDetailArtworkDesc.replaceChildren();
+                    const p = document.createElement('p');
+                    p.className = 'detail-artwork-description__text';
+                    p.textContent = descText;
+                    workDetailArtworkDesc.appendChild(p);
+                }
             }
         }
 
@@ -1073,7 +620,7 @@ document.addEventListener('DOMContentLoaded', () => {
             workDetailArtworkSpec.classList.remove('detail-artwork-spec--year-only');
 
             if (isDesign) {
-                const y = (item.year || '').trim();
+                const y = (item.year != null ? String(item.year) : '').trim();
                 if (!y) {
                     workDetailArtworkSpec.hidden = true;
                     workDetailArtworkSpec.replaceChildren();
@@ -1120,18 +667,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openDetailView(options = {}) {
         const fromGalleryImage = Boolean(options.fromGalleryImage);
-        const item = currentImages[currentGalleryIndex];
+        let idx = currentGalleryIndex;
+        if (typeof options.projectIndex === 'number' && !Number.isNaN(options.projectIndex)) {
+            idx = options.projectIndex;
+        }
+        currentGalleryIndex = idx;
+        const item = currentImages[idx];
         if (!item || !detailLayer || !detailHero || !detailTitle || !detailDesc) return;
 
-        const workGalleryEl = document.getElementById('work-gallery');
-        if (workGalleryEl && window.matchMedia('(min-width: 769px)').matches) {
-            workGalleryEl.scrollTop = 0;
-        }
-
-        previousWorkIndex = currentGalleryIndex;
+        previousWorkIndex = idx;
         const slides = Array.isArray(item.slides) && item.slides.length > 0 ? item.slides : [item.src];
         let activeSlide = Math.max(0, slides.indexOf(item.src));
-        if (
+
+        if (typeof options.initialSlideIndex === 'number' && !Number.isNaN(options.initialSlideIndex)) {
+            activeSlide = Math.max(0, Math.min(options.initialSlideIndex, slides.length - 1));
+        } else if (
             typeof item.detailStartIndex === 'number' &&
             !Number.isNaN(item.detailStartIndex)
         ) {
@@ -1140,18 +690,52 @@ document.addEventListener('DOMContentLoaded', () => {
                 Math.min(item.detailStartIndex, slides.length - 1)
             );
         }
-        detailSlideSources = slides;
-        detailSlideIndex = activeSlide;
 
-        detailHero.src = slides[activeSlide] || item.src;
-        detailHero.alt = item.title
-            ? slides.length > 1
-                ? `${item.title} — image ${activeSlide + 1}`
-                : item.title
-            : 'Project image';
+        const ytId = youtubeIdFromItem(item);
+        const scrollDetailPage =
+            item._kind === 'design' &&
+            !ytId &&
+            (item.detailScrollPage === true || slides.length > 2);
+        if (scrollDetailPage) {
+            activeSlide = 0;
+        }
+
+        detailSlideSources = scrollDetailPage ? [slides[0] || item.src] : slides;
+        detailSlideIndex = scrollDetailPage ? 0 : activeSlide;
+
+        if (ytId && detailVideo && detailYoutubeFrame) {
+            detailYoutubeFrame.src = `https://www.youtube-nocookie.com/embed/${ytId}?rel=0`;
+            detailVideo.hidden = false;
+            detailHero.hidden = true;
+            detailLayer.classList.add('work-detail--youtube');
+        } else {
+            if (detailYoutubeFrame) detailYoutubeFrame.src = '';
+            if (detailVideo) detailVideo.hidden = true;
+            detailHero.hidden = false;
+            detailLayer.classList.remove('work-detail--youtube');
+            detailHero.src = slides[activeSlide] || item.src;
+            const slideCountForLabel = scrollDetailPage ? 1 : slides.length;
+            detailHero.alt = item.title
+                ? slideCountForLabel > 1
+                    ? `${item.title} — image ${activeSlide + 1}`
+                    : item.title
+                : 'Project image';
+        }
         detailTitle.textContent = item.title || '';
-        const isFineArt = currentCategory === 'fineart';
-        const isDesign = currentCategory === 'design';
+        const isFineArt = item._kind === 'fineart';
+        const isDesign = item._kind === 'design';
+
+        if (isDesign) {
+            detailLayer.classList.add('work-detail--design');
+        } else {
+            detailLayer.classList.remove('work-detail--design');
+        }
+
+        if (isFineArt) {
+            detailLayer.classList.add('work-detail--fine-art');
+        } else {
+            detailLayer.classList.remove('work-detail--fine-art');
+        }
 
         if (isFineArt || isDesign) {
             detailDesc.hidden = true;
@@ -1171,7 +755,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         const hasMultipleSlides = slides.length > 1;
-        const showThumbs = !isFineArt && hasMultipleSlides;
+        const showThumbs = !isFineArt && hasMultipleSlides && !scrollDetailPage;
 
         if (!showThumbs) {
             detailLayer.classList.add('work-detail--no-thumbs');
@@ -1183,36 +767,122 @@ document.addEventListener('DOMContentLoaded', () => {
 
         updateWorkDetailHeroAdvanceState();
 
-        setInPageDetailFooter(item, currentCategory);
-        detailArtworkRevealTimeout = setTimeout(() => {
-            detailArtworkRevealTimeout = null;
-            revealInPageDetailFooter();
-        }, 520);
+        if (scrollDetailPage) {
+            clearInPageDetailFooter();
+            detailLayer.classList.add('work-detail--scroll-page');
+            const leadHtml =
+                typeof window.portfolioDetailScrollArticleLeadHtml === 'function'
+                    ? window.portfolioDetailScrollArticleLeadHtml(item)
+                    : typeof item.detailArticleHtml === 'string'
+                      ? item.detailArticleHtml
+                      : '';
+            if (workDetailArticleLead) {
+                if (leadHtml) {
+                    workDetailArticleLead.innerHTML = leadHtml;
+                    workDetailArticleLead.hidden = false;
+                } else {
+                    workDetailArticleLead.innerHTML = '';
+                    workDetailArticleLead.hidden = true;
+                }
+            }
+            const afterHeroHtml =
+                typeof item.detailArticleHtmlAfterHero === 'string' ? item.detailArticleHtmlAfterHero : '';
+            if (workDetailArticleAfterHero) {
+                if (afterHeroHtml) {
+                    workDetailArticleAfterHero.innerHTML = afterHeroHtml;
+                    workDetailArticleAfterHero.hidden = false;
+                } else {
+                    workDetailArticleAfterHero.innerHTML = '';
+                    workDetailArticleAfterHero.hidden = true;
+                }
+            }
+            if (workDetailArticle) {
+                if (typeof window.destroyPortfolioObjViewers === 'function') {
+                    window.destroyPortfolioObjViewers(workDetailArticle);
+                }
+                workDetailArticle.hidden = false;
+                workDetailArticle.innerHTML =
+                    typeof window.portfolioDetailScrollArticleHtml === 'function'
+                        ? window.portfolioDetailScrollArticleHtml(item)
+                        : '';
+            }
+        } else {
+            detailLayer.classList.remove('work-detail--scroll-page');
+            if (workDetailArticleLead) {
+                workDetailArticleLead.innerHTML = '';
+                workDetailArticleLead.hidden = true;
+            }
+            if (workDetailArticleAfterHero) {
+                workDetailArticleAfterHero.innerHTML = '';
+                workDetailArticleAfterHero.hidden = true;
+            }
+            if (workDetailArticle) {
+                if (typeof window.destroyPortfolioObjViewers === 'function') {
+                    window.destroyPortfolioObjViewers(workDetailArticle);
+                }
+                workDetailArticle.hidden = true;
+                workDetailArticle.innerHTML = '';
+            }
+            setInPageDetailFooter(item);
+            detailArtworkRevealTimeout = setTimeout(() => {
+                detailArtworkRevealTimeout = null;
+                revealInPageDetailFooter();
+            }, 520);
+        }
 
         detailLayer.classList.add('active');
         detailLayer.setAttribute('aria-hidden', 'false');
         detailHero.classList.remove('detail-hero-grow', 'detail-hero-from-gallery');
+        if (detailVideo) detailVideo.classList.remove('detail-hero-grow', 'detail-hero-from-gallery');
 
         const narrowWorkUi = window.matchMedia('(max-width: 768px)').matches;
-        if (narrowWorkUi) {
-            /* Keep hero stable in layout — no scale-from-small entrance that reads as a jump */
-            detailHero.classList.add('detail-hero-grow');
-        } else if (fromGalleryImage) {
-            detailHero.classList.add('detail-hero-from-gallery');
-            requestAnimationFrame(() => {
+        if (ytId && detailVideo) {
+            if (narrowWorkUi) {
+                detailVideo.classList.add('detail-hero-grow');
+            } else if (fromGalleryImage) {
+                detailVideo.classList.add('detail-hero-from-gallery');
                 requestAnimationFrame(() => {
-                    detailHero.classList.remove('detail-hero-from-gallery');
-                    detailHero.classList.add('detail-hero-grow');
+                    requestAnimationFrame(() => {
+                        detailVideo.classList.remove('detail-hero-from-gallery');
+                        detailVideo.classList.add('detail-hero-grow');
+                    });
                 });
-            });
-        } else {
-            requestAnimationFrame(() => detailHero.classList.add('detail-hero-grow'));
+            } else {
+                requestAnimationFrame(() => detailVideo.classList.add('detail-hero-grow'));
+            }
+        } else if (!detailHero.hidden) {
+            if (narrowWorkUi) {
+                /* Keep hero stable in layout — no scale-from-small entrance that reads as a jump */
+                detailHero.classList.add('detail-hero-grow');
+            } else if (fromGalleryImage) {
+                detailHero.classList.add('detail-hero-from-gallery');
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        detailHero.classList.remove('detail-hero-from-gallery');
+                        detailHero.classList.add('detail-hero-grow');
+                    });
+                });
+            } else {
+                requestAnimationFrame(() => detailHero.classList.add('detail-hero-grow'));
+            }
         }
         detailOpen = true;
+        document.body.classList.add('work-detail-modal-open');
+        if (scrollDetailPage && workDetailArticle) {
+            /* After .active + layout: avoids 0-size stage and ensures THREE is ready */
+            window.requestAnimationFrame(function () {
+                window.requestAnimationFrame(function () {
+                    if (typeof window.initPortfolioObjViewers === 'function') {
+                        window.initPortfolioObjViewers(workDetailArticle);
+                    }
+                });
+            });
+        }
     }
 
     function closeDetailView(restorePrevious = true) {
         if (!detailOpen || !detailLayer) return;
+        resetWorkDetailYoutube();
         if (detailHero) {
             detailHero.classList.remove(
                 'detail-hero-grow',
@@ -1223,27 +893,294 @@ document.addEventListener('DOMContentLoaded', () => {
             detailHero.removeAttribute('tabindex');
             detailHero.removeAttribute('aria-label');
         }
-        document.querySelector('.gallery-image-wrapper')?.classList.remove('gallery-img-zoom-open');
         clearInPageDetailFooter();
         detailLayer.classList.remove('active');
         detailLayer.classList.remove('work-detail--no-thumbs');
+        detailLayer.classList.remove('work-detail--scroll-page');
+        detailLayer.classList.remove('work-detail--design');
+        detailLayer.classList.remove('work-detail--fine-art');
+        if (workDetailArticleLead) {
+            workDetailArticleLead.innerHTML = '';
+            workDetailArticleLead.hidden = true;
+        }
+        if (workDetailArticleAfterHero) {
+            workDetailArticleAfterHero.innerHTML = '';
+            workDetailArticleAfterHero.hidden = true;
+        }
+        if (workDetailArticle) {
+            if (typeof window.destroyPortfolioObjViewers === 'function') {
+                window.destroyPortfolioObjViewers(workDetailArticle);
+            }
+            workDetailArticle.hidden = true;
+            workDetailArticle.innerHTML = '';
+        }
         detailLayer.setAttribute('aria-hidden', 'true');
         detailOpen = false;
-        if (restorePrevious) updateGallery(previousWorkIndex);
+        document.body.classList.remove('work-detail-modal-open');
+        if (detailClose && document.activeElement === detailClose) {
+            detailClose.blur();
+        }
+        if (restorePrevious && previousWorkIndex >= 0 && workFeed) {
+            currentGalleryIndex = previousWorkIndex;
+            const row = workFeed.querySelector(
+                `.work-feed-item[data-project-index="${previousWorkIndex}"]`
+            );
+            row?.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+        }
     }
 
-    function setMobileGalleryImgZoom(on) {
-        const wrap = document.querySelector('.gallery-image-wrapper');
-        if (!wrap || !window.matchMedia('(max-width: 768px)').matches) return;
-        wrap.classList.toggle('gallery-img-zoom-open', on);
+    /** Keep the feed preview box the same size as the first main image (multi-slide cards only). */
+    function lockWorkFeedHeroSlot(media, hero) {
+        const apply = () => {
+            if (!hero.naturalWidth) return;
+            hero.style.removeProperty('max-height');
+            hero.style.maxWidth = '100%';
+            hero.style.width = '100%';
+            hero.style.height = 'auto';
+            hero.style.objectFit = 'contain';
+            void hero.offsetHeight;
+            const h = Math.round(hero.getBoundingClientRect().height);
+            if (h < 2) return;
+            media.style.height = `${h}px`;
+            media.style.alignItems = 'center';
+            media.dataset.heroSlotLocked = '1';
+            hero.style.maxHeight = '100%';
+        };
+        if (hero.complete && hero.naturalWidth) {
+            requestAnimationFrame(apply);
+        } else {
+            hero.addEventListener('load', () => requestAnimationFrame(apply), { once: true });
+        }
     }
 
-    if (navWork) {
-        navWork.addEventListener('click', () => {
-            armSuppressMainGalleryClick();
-            if (detailOpen) closeDetailView(false);
-            if (projectOverlay) projectOverlay.classList.remove('active');
-            setMobileGalleryImgZoom(false);
+    function renderWorkFeed() {
+        if (!workFeed) return;
+        workFeed.innerHTML = '';
+        const colLeft = document.createElement('div');
+        colLeft.className = 'work-feed__col work-feed__col--left';
+        const colRight = document.createElement('div');
+        colRight.className = 'work-feed__col work-feed__col--right';
+        workFeed.appendChild(colLeft);
+        workFeed.appendChild(colRight);
+
+        currentImages.forEach((item, index) => {
+            const kind = item._kind;
+            const year = projectDisplayYear(item);
+            const desc = projectFeedDescription(item, kind);
+            const feedBlurb = (item.feedBlurb && String(item.feedBlurb).trim()) || '';
+            const captionText =
+                kind === 'fineart' ? '' : (feedBlurb || desc || '').trim();
+            const slides =
+                Array.isArray(item.slides) && item.slides.length > 0 ? item.slides : [item.src];
+
+            const article = document.createElement('article');
+            article.className =
+                'work-feed-item' + (captionText ? ' work-feed-item--caption' : '');
+            article.dataset.projectIndex = String(index);
+            article.style.order = String(index);
+
+            const useMainGrid =
+                item.feedAllSlidesAsMain === true && Array.isArray(slides) && slides.length > 1;
+
+            let media;
+            if (useMainGrid) {
+                media = document.createElement('div');
+                media.className = 'work-feed-item__media-group';
+                slides.forEach((src, si) => {
+                    const cell = document.createElement('div');
+                    cell.className = 'work-feed-item__media';
+                    const img = document.createElement('img');
+                    img.src = src;
+                    img.alt = item.title ? `${item.title} — ${si + 1}` : 'Project';
+                    img.loading = 'lazy';
+                    img.dataset.slideIndex = String(si);
+                    cell.appendChild(img);
+                    media.appendChild(cell);
+                });
+            } else {
+                media = document.createElement('div');
+                media.className = 'work-feed-item__media';
+                const hero = document.createElement('img');
+                hero.src = item.src;
+                hero.alt = item.title ? `${item.title}` : 'Project';
+                hero.loading = 'lazy';
+                const startSlide = Math.max(0, slides.indexOf(item.src));
+                hero.dataset.slideIndex = String(Number.isNaN(startSlide) ? 0 : startSlide);
+                media.appendChild(hero);
+                if (slides.length > 1) {
+                    lockWorkFeedHeroSlot(media, hero);
+                }
+                const ytFeedId = youtubeIdFromItem(item);
+                if (ytFeedId) {
+                    media.classList.add('work-feed-item__media--video');
+                    const playMark = document.createElement('span');
+                    playMark.className = 'work-feed-item__play';
+                    playMark.setAttribute('aria-hidden', 'true');
+                    playMark.innerHTML =
+                        '<svg class="work-feed-item__play-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6.5v11l9-5.5-9-5.5z" fill="currentColor"/></svg>';
+                    media.appendChild(playMark);
+                }
+            }
+
+            const info = document.createElement('div');
+            info.className = 'work-feed-item__info';
+
+            const headerRow = document.createElement('div');
+            headerRow.className = 'work-feed-item__header-row';
+            const h2 = document.createElement('h2');
+            h2.className = 'work-feed-item__title';
+            h2.textContent = item.title || '';
+            const yearEl = document.createElement('span');
+            yearEl.className = 'work-feed-item__year';
+            yearEl.textContent = year;
+            headerRow.appendChild(h2);
+            headerRow.appendChild(yearEl);
+
+            const rule = document.createElement('hr');
+            rule.className = 'work-feed-item__rule';
+
+            const copy = document.createElement('div');
+            copy.className = 'work-feed-item__copy';
+            const p = document.createElement('p');
+            p.className = 'work-feed-item__desc';
+            p.textContent = captionText;
+            copy.appendChild(p);
+
+            info.appendChild(headerRow);
+            info.appendChild(rule);
+            if (captionText) {
+                info.appendChild(copy);
+            }
+
+            const rasterSlideEntries = slides
+                .map((src, si) => ({ src, si }))
+                .filter(({ src }) => !/\.obj$/i.test(src));
+            if (rasterSlideEntries.length > 1 && !useMainGrid) {
+                const thumbsRow = document.createElement('div');
+                thumbsRow.className = 'work-feed-item__thumbs';
+                rasterSlideEntries.forEach(({ src, si }, ti) => {
+                    const tb = document.createElement('button');
+                    tb.type = 'button';
+                    tb.className = 'work-feed-thumb' + (ti === 0 ? ' active' : '');
+                    tb.dataset.slideIndex = String(si);
+                    tb.setAttribute('aria-label', `Show image ${si + 1} in preview`);
+                    if (ti === 0) tb.setAttribute('aria-current', 'true');
+                    const im = document.createElement('img');
+                    im.src = src;
+                    im.alt = '';
+                    tb.appendChild(im);
+                    thumbsRow.appendChild(tb);
+                });
+                info.appendChild(thumbsRow);
+            }
+
+            article.appendChild(media);
+            article.appendChild(info);
+            (index % 2 === 0 ? colLeft : colRight).appendChild(article);
+        });
+    }
+
+    function setWorkSection(section) {
+        workSection = section === 'art' ? 'art' : 'design';
+        document.body.dataset.workFeed = workSection;
+        currentImages = mergePortfolioProjects(galleryData, workSection);
+        if (detailOpen) closeDetailView(false);
+        renderWorkFeed();
+    }
+
+    setWorkSection('design');
+
+    if (navDesign) {
+        navDesign.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.body.classList.remove('about-mode');
+            document.body.classList.add('work-mode');
+            setWorkSection('design');
+        });
+    }
+
+    if (navArt) {
+        navArt.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.body.classList.remove('about-mode');
+            document.body.classList.add('work-mode');
+            setWorkSection('art');
+        });
+    }
+
+    if (navAbout) {
+        navAbout.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.body.classList.remove('work-mode');
+            document.body.classList.add('about-mode');
+        });
+    }
+
+    if (workFeed) {
+        workFeed.addEventListener('click', (e) => {
+            const t = e.target;
+            const thumbBtn = t.closest && t.closest('.work-feed-thumb');
+            if (thumbBtn && workFeed.contains(thumbBtn)) {
+                e.preventDefault();
+                e.stopPropagation();
+                const article = thumbBtn.closest('.work-feed-item');
+                if (!article) return;
+                const idx = parseInt(article.dataset.projectIndex, 10);
+                const slideIdx = parseInt(thumbBtn.dataset.slideIndex, 10);
+                if (Number.isNaN(idx) || Number.isNaN(slideIdx)) return;
+                const item = currentImages[idx];
+                if (!item) return;
+                const slideList =
+                    Array.isArray(item.slides) && item.slides.length > 0 ? item.slides : [item.src];
+                const nextSrc = slideList[slideIdx];
+                if (!nextSrc) return;
+                const hero = article.querySelector(':scope > .work-feed-item__media > img');
+                if (!hero) return;
+                hero.src = nextSrc;
+                hero.dataset.slideIndex = String(slideIdx);
+                const media = hero.parentElement;
+                if (media && media.classList.contains('work-feed-item__media')) {
+                    const rerender = () => lockWorkFeedHeroSlot(media, hero);
+                    hero.addEventListener('load', rerender, { once: true });
+                    requestAnimationFrame(() => {
+                        if (hero.complete && hero.naturalWidth) rerender();
+                    });
+                }
+                article.querySelectorAll('.work-feed-thumb').forEach((btn) => {
+                    const on = parseInt(btn.dataset.slideIndex, 10) === slideIdx;
+                    btn.classList.toggle('active', on);
+                    btn.setAttribute('aria-current', on ? 'true' : 'false');
+                });
+                return;
+            }
+
+            const titleEl = t.closest && t.closest('.work-feed-item__title');
+            const mediaImg = t.closest && t.closest('.work-feed-item__media img');
+            if (titleEl || mediaImg) {
+                const row = (titleEl || mediaImg).closest('.work-feed-item');
+                if (!row) return;
+                const idx = parseInt(row.dataset.projectIndex, 10);
+                if (Number.isNaN(idx)) return;
+                e.preventDefault();
+                let initialSlideIndex = 0;
+                if (mediaImg) {
+                    if (mediaImg.dataset.slideIndex != null && mediaImg.dataset.slideIndex !== '') {
+                        const si = parseInt(mediaImg.dataset.slideIndex, 10);
+                        if (!Number.isNaN(si)) initialSlideIndex = si;
+                    }
+                } else if (titleEl) {
+                    const hero = row.querySelector(':scope > .work-feed-item__media > img');
+                    if (hero && hero.dataset.slideIndex != null && hero.dataset.slideIndex !== '') {
+                        const si = parseInt(hero.dataset.slideIndex, 10);
+                        if (!Number.isNaN(si)) initialSlideIndex = si;
+                    }
+                }
+                openDetailView({
+                    projectIndex: idx,
+                    initialSlideIndex,
+                    fromGalleryImage: Boolean(mediaImg),
+                });
+            }
         });
     }
 
@@ -1251,54 +1188,25 @@ document.addEventListener('DOMContentLoaded', () => {
         logo.addEventListener('click', (e) => {
             e.preventDefault();
             if (detailOpen) closeDetailView(false);
-            if (projectOverlay) projectOverlay.classList.remove('active');
-            setMobileGalleryImgZoom(false);
-            document.body.classList.remove('work-mode');
+            document.body.classList.add('work-mode');
             document.body.classList.remove('about-mode');
-            startIntroTypewriter();
-            startHomeScatterStrands();
+            document.body.dataset.workFeed = workSection;
+            document.getElementById('work-gallery')?.scrollTo({ top: 0, behavior: 'smooth' });
         });
     }
 
     window.addEventListener('pageshow', (ev) => {
         if (!ev.persisted) return;
         if (detailOpen) closeDetailView(false);
-        if (projectOverlay) projectOverlay.classList.remove('active');
-        setMobileGalleryImgZoom(false);
     });
 
-    if (mainImg && projectOverlay) {
-        mainImg.addEventListener('click', () => {
-            if (isMainGalleryClickSuppressed()) return;
-            const currentData = currentImages[currentGalleryIndex];
-            if (overlayTitle) overlayTitle.innerText = currentData.title;
-            projectOverlay.classList.add('active');
-            setMobileGalleryImgZoom(true);
-        });
-
-        projectOverlay.addEventListener('click', (e) => {
-            if (e.target === overlayLink) return;
-            projectOverlay.classList.remove('active');
-            setMobileGalleryImgZoom(false);
-        });
-    }
-
-    if (overlayLink) {
-        overlayLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (projectOverlay) projectOverlay.classList.remove('active');
-            setMobileGalleryImgZoom(false);
-            openDetailView({ fromGalleryImage: true });
-        });
+    if (detailClose) {
+        detailClose.addEventListener('click', () => closeDetailView());
     }
 
     if (detailLayer) {
         detailLayer.addEventListener('click', (e) => {
-            const clickedImage = e.target.closest('#work-detail-hero, .work-detail-thumb, .work-detail-thumbs');
-            const clickedHeading = e.target.closest('.work-detail-heading');
-            const clickedTextBox = e.target.closest('.work-detail-meta');
-            if (clickedImage || clickedHeading || clickedTextBox) return;
-            closeDetailView();
+            if (e.target === detailLayer) closeDetailView();
         });
     }
 

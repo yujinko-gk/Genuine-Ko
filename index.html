@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>Genuine Ko | Portfolio</title>
     <meta name="description" content="Personal portfolio of Genuine Ko.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,172 +14,240 @@
     <script src="projects-data.js"></script>
 </head>
 
-<body>
+<body class="work-mode" data-work-feed="design">
     <!-- Custom Cursor -->
     <div class="cursor"></div>
     <div class="cursor-follower"></div>
     <svg class="draw-layer" id="draw-layer" aria-hidden="true"></svg>
 
-    <main class="hidden-initially">
-        <!-- Navigation / Identity -->
-        <div class="intro-sentence">
-            <span class="static-text"></span><span class="type-cursor" id="cursor">|</span>
-        </div>
-        <h1 class="main-title" id="logo">GENUINE KO</h1>
-        <a href="#" class="link-item" id="nav-work">work</a>
-        <a href="#" class="link-item" id="nav-about">about me</a>
-
-        <!-- Work Gallery Section -->
-        <section id="work-gallery">
-            <div class="gallery-categories-sidebar">
-                <p class="category-item active" data-category="design">Design</p>
-                <p class="category-item" data-category="fineart">Fine Art</p>
+    <main class="site-shell">
+        <aside class="site-sidebar" aria-label="Site">
+            <header class="site-sidebar__header">
+                <h1 class="main-title" id="logo">GENUINE KO</h1>
+                <p class="site-sidebar__tagline">ART &amp; DESIGN</p>
+            </header>
+            <nav class="site-nav-links" aria-label="Primary">
+                <a href="#" class="link-item link-item--feed" id="nav-design">Design</a>
+                <a href="#" class="link-item link-item--feed" id="nav-art">Art</a>
+                <a href="#" class="link-item" id="nav-about">About</a>
+            </nav>
+            <div class="site-sidebar__social" aria-label="Links">
+                <a class="site-sidebar__social-link" href="https://www.linkedin.com/in/genuine-ko-251944326"
+                    target="_blank" rel="noopener noreferrer" title="LinkedIn">
+                    <span class="visually-hidden">LinkedIn</span>
+                    <svg class="site-sidebar__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path fill="currentColor"
+                            d="M6.5 8.8h-4V22h4V8.8zm-2-7.6C2.2 1.2 1 2.4 1 3.9c0 1.5 1.2 2.7 2.6 2.7h.1c1.5 0 2.7-1.2 2.7-2.7-.1-1.5-1.3-2.7-2.9-2.7zM23 14.3c0-4.5-1-7.4-5.8-7.4-2.3 0-3.8 1.2-4.4 2.4h-.1V8.8H9.2V22h4v-7.4c0-1.8.3-3.5 2.5-3.5 2.2 0 2.2 2 2.2 3.6V22h4l.1-7.7z" />
+                    </svg>
+                </a>
             </div>
+        </aside>
 
-            <div class="gallery-content">
-                <div class="gallery-main">
-                    <button class="arrow arrow-left">
-                        <svg width="30" height="50" viewBox="0 0 30 50" fill="none" stroke="currentColor"
-                            stroke-width="1">
-                            <path d="M25 5 L5 25 L25 45" />
-                        </svg>
-                    </button>
+        <div class="site-content">
+        <!-- Work: masonry grid + detail overlay -->
+        <section id="work-gallery">
+            <div class="work-feed" id="work-feed"></div>
+        </section>
 
-                    <div class="gallery-image-wrapper">
-                        <!-- Your real portfolio images go here -->
-                        <img src="./images/1.jpg" alt="Work Item 1" id="main-gallery-img">
+        <!-- About: 2×2 grid — portrait | bio; Education+Experience | Tools+Language -->
+        <section id="about-section">
+            <div class="about-layout">
+                <div class="about-cell about-cell--portrait">
+                    <img class="about-portrait" src="./images/me%204.png" alt="Genuine Ko">
+                </div>
 
-                        <!-- Translucent Data Overlay -->
-                        <div class="project-overlay" id="project-overlay">
-                            <h2 class="project-title" id="overlay-title">Project Name</h2>
-                            <a href="#" class="project-link" id="overlay-link">View Detail</a>
-                        </div>
+                <div class="about-cell about-cell--lede">
+                    <div class="about-lede">
+                        <p>I am Genuine Ko, a junior BFA Design major at USC Roski School of Art and Design with a minor
+                            in Music Production. I am an interdisciplinary artist and designer, and I approach
+                            everything with an openness to what doesn't fit neatly into one category.</p>
+                        <p>I am drawn to things that are fluid, undefined, and untold. I believe in the potential for
+                            change within them and the deep resonance within the unseen. Growing up across different
+                            cities and environments, I came to see the world from multiple angles. Everything is
+                            complexly interconnected, and yet every part of it speaks in its own voice. I find meaning
+                            in the spaces, the moments, and what passes between, in all the things that are easy to
+                            overlook. In design, I believe in the weight of emptiness. What is left out can be just as
+                            intentional as what remains.</p>
+                        <p>Music is my unavoidable passion. I'm drawn to how it exists as a language, in words and
+                            beyond them. I sing and arrange for <a
+                                href="https://www.instagram.com/trogonsacappella/" class="about-inline-link"
+                                target="_blank" rel="noopener noreferrer">Trogons</a>, USC's premier East Asian a
+                            cappella group, and co-design social media for <a
+                                href="https://www.instagram.com/uscbandkori/" class="about-inline-link"
+                                target="_blank" rel="noopener noreferrer">Band Kori</a>, USC's one and only K-pop band.
+                            Culture and identity are always somewhere in my work, shaping the kind of thinking that
+                            stays open to where it hasn't been before.</p>
                     </div>
-
-                    <button class="arrow arrow-right">
-                        <svg width="30" height="50" viewBox="0 0 30 50" fill="none" stroke="currentColor"
-                            stroke-width="1">
-                            <path d="M5 5 L25 25 L5 45" />
-                        </svg>
-                    </button>
                 </div>
 
-                <div class="gallery-thumbnails">
-                    <img src="./images/1.jpg" class="thumb active" data-index="0" alt="">
-                    <img src="./images/INDIEGO/PF4.png" class="thumb" data-index="1" alt="">
-                    <img src="./images/3.png" class="thumb" data-index="2" alt="">
-                    <img src="./images/CS4.jpg" class="thumb" data-index="3" alt="">
-                    <img src="./images/2.jpg" class="thumb" data-index="4" alt="">
-                </div>
-            </div> <!-- Close gallery-content -->
+                <div class="about-cell about-cell--cv">
+                    <section class="about-block" aria-labelledby="about-education-heading">
+                        <h2 class="about-block__title" id="about-education-heading">Education</h2>
+                        <ul class="about-cv-list">
+                            <li class="about-cv-row">
+                                <div class="about-cv-row__top">
+                                    <span class="about-cv-row__title">BFA Design</span>
+                                    <span class="about-cv-row__dates">2025 – 2028</span>
+                                </div>
+                                <span class="about-cv-row__org">University of Southern California</span>
+                            </li>
+                            <li class="about-cv-row">
+                                <div class="about-cv-row__top">
+                                    <span class="about-cv-row__title">BA Art</span>
+                                    <span class="about-cv-row__dates">2023 – 2025</span>
+                                </div>
+                                <span class="about-cv-row__org">California State University, Northridge</span>
+                            </li>
+                            <li class="about-cv-row">
+                                <div class="about-cv-row__top">
+                                    <span class="about-cv-row__title">Highschool Diploma</span>
+                                    <span class="about-cv-row__dates">2018 – 2021</span>
+                                </div>
+                                <span class="about-cv-row__org">School of Performing Art, Seoul</span>
+                            </li>
+                        </ul>
+                    </section>
 
-            <div class="work-detail-layer" id="work-detail-layer" aria-hidden="true">
-                <div class="work-detail-panel" id="work-detail-panel" role="dialog" aria-modal="true"
-                    aria-label="Project detail view">
-                    <aside class="work-detail-thumbs" id="work-detail-thumbs"></aside>
-                    <header class="work-detail-heading">
-                        <h2 class="work-detail-title" id="work-detail-title"></h2>
-                        <p class="work-detail-year" id="work-detail-year" hidden></p>
-                    </header>
-                    <div class="work-detail-main">
-                        <div class="work-detail-main__column">
-                            <img src="" alt="" id="work-detail-hero">
-                            <div class="detail-artwork-footer">
-                                <div class="detail-artwork-description" id="work-detail-artwork-description" hidden></div>
-                                <div class="detail-artwork-spec" id="work-detail-artwork-spec" hidden></div>
+                    <section class="about-block" aria-labelledby="about-experience-heading">
+                        <h2 class="about-block__title" id="about-experience-heading">Experience</h2>
+                        <ul class="about-cv-list">
+                            <li class="about-cv-row">
+                                <div class="about-cv-row__top">
+                                    <span class="about-cv-row__title">Social Media Co-Designer</span>
+                                    <span class="about-cv-row__dates">2026.01 — Present</span>
+                                </div>
+                                <span class="about-cv-row__org">Band Kori</span>
+                            </li>
+                            <li class="about-cv-row">
+                                <div class="about-cv-row__top">
+                                    <span class="about-cv-row__title">Alto Singer</span>
+                                    <span class="about-cv-row__dates">2025.09 — Present</span>
+                                </div>
+                                <span class="about-cv-row__org">Trogons A cappella</span>
+                            </li>
+                            <li class="about-cv-row">
+                                <div class="about-cv-row__top">
+                                    <span class="about-cv-row__title">Social Media Manager</span>
+                                    <span class="about-cv-row__dates">2024.08 — 2025.05</span>
+                                </div>
+                                <span class="about-cv-row__org">CSUN Badminton Club</span>
+                            </li>
+                        </ul>
+                    </section>
+                </div>
+
+                <div class="about-cell about-cell--skills">
+                    <section class="about-block" aria-labelledby="about-tools-heading">
+                        <h2 class="about-block__title" id="about-tools-heading">Tools</h2>
+                        <div class="about-tools">
+                            <div class="about-tools__line">
+                                <span class="about-tools__label">2D</span>
+                                <span class="about-tools__value">Illustrator, Photoshop, InDesign, Figma</span>
+                            </div>
+                            <div class="about-tools__line">
+                                <span class="about-tools__label">3D</span>
+                                <span class="about-tools__value">Cinema 4D</span>
+                            </div>
+                            <div class="about-tools__line">
+                                <span class="about-tools__label">Motion</span>
+                                <span class="about-tools__value">After Effects, Premiere Pro</span>
+                            </div>
+                            <div class="about-tools__line">
+                                <span class="about-tools__label">Music</span>
+                                <span class="about-tools__value">Ableton</span>
                             </div>
                         </div>
+                    </section>
+
+                    <section class="about-block" aria-labelledby="about-language-heading">
+                        <h2 class="about-block__title" id="about-language-heading">Language</h2>
+                        <ul class="about-lang-list">
+                            <li><span class="about-lang__name">Korean</span><span class="about-lang__level">Native</span></li>
+                            <li><span class="about-lang__name">English</span><span class="about-lang__level">Fluent</span></li>
+                            <li><span class="about-lang__name">Japanese</span><span class="about-lang__level">Basic</span></li>
+                        </ul>
+                    </section>
+
+                    <nav class="about-external-links" aria-label="Resume and social profiles">
+                        <a href="https://drive.google.com/file/d/13wcpUpQnuilo_vJqdJjjLTju_J4TU06J/view?usp=sharing"
+                            class="about-external-links__link" target="_blank" rel="noopener noreferrer">Resume</a>
+                        <a href="https://www.linkedin.com/in/genuine-ko-251944326" class="about-external-links__link"
+                            target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                        <a href="https://www.instagram.com/ewxjink/" class="about-external-links__link" target="_blank"
+                            rel="noopener noreferrer">Instagram</a>
+                    </nav>
+                </div>
+
+                <div class="about-cell about-cell--footer">
+                    <div class="about-contact">
+                        <p class="about-contact__label">Contact</p>
+                        <div class="about-contact__emails">
+                            <a href="mailto:kogenuine@gmail.com">kogenuine@gmail.com</a>
+                            <a href="mailto:yujinko@usc.edu">yujinko@usc.edu</a>
+                        </div>
                     </div>
-                    <article class="work-detail-meta">
-                        <p class="work-detail-desc" id="work-detail-desc"></p>
-                    </article>
                 </div>
             </div>
         </section>
-
-        <!-- About Me Section -->
-        <section id="about-section">
-            <div class="about-intro-bundle">
-                <div class="about-left-instruction">
-                    <div class="about-left-instruction__inner">
-                        <p class="about-instruction__line about-instruction__line--first">
-                            <span id="about-typewriter-line1"></span><span class="type-cursor about-type-cursor"
-                                id="about-type-cursor-1" aria-hidden="true">|</span>
-                        </p>
-                        <p class="about-instruction__line about-instruction__line--second">
-                            <span id="about-typewriter-line2"></span><span class="type-cursor about-type-cursor"
-                                id="about-type-cursor-2" aria-hidden="true" hidden>|</span>
-                        </p>
-                    </div>
-                </div>
-                <div class="about-floating-names-slot" id="about-floating-names-slot">
-                    <div class="floating-text float-1 repulse font-japanese" data-speed="1.2">
-                        潭彝
-                        <div class="pronunciation">[dam-e]</div>
-                        <span class="meaning-box">A traditional Korean pen name written in Chinese, and the name my family calls me,
-                            meaning "Still as
-                            deep water, open to the world."</span>
-                    </div>
-                    <div class="floating-text float-2 repulse font-japanese" data-speed="0.9">
-                        高流進
-                        <div class="pronunciation">[goh yoo-jin]</div>
-                        <span class="meaning-box"> My legal name in Chinese characters. Most Korean names can be written this way,
-                            meaning "Always reaching higher, always moving forward."</span>
-                    </div>
-                    <div class="floating-text float-3 repulse font-korean" data-speed="1.1">
-                        고유진
-                        <div class="pronunciation">[goh yoo-jin]</div>
-                        <span class="meaning-box">My legal name written in Korean</span>
-                    </div>
-                    <div class="floating-text float-4 repulse font-japanese" data-speed="0.8">
-                        Riley
-                        <span class="meaning-box">My English name used in 2021–2023. Some people still call me Riley :)</span>
-                    </div>
-                    <div class="floating-text float-5 repulse font-japanese" data-speed="1.0">
-                        Yujin Ko
-                        <span class="meaning-box">My legal name written in English</span>
-                    </div>
-                </div>
-            </div>
-            <div class="about-middle">
-                <p>I am Genuine Ko, a junior BFA Design major at USC Roski School of Art and Design with a minor in
-                    Music Production. I'm drawn to things that are fluid, undefined, and untold, as I believe in the
-                    potential for change within them and the deep resonance within the unseen. As a creator, observer,
-                    analyst, and learner, I came to see the world from multiple angles through the cities and environments
-                    in which I grew up. The world is deeply interconnected, and yet every part of it speaks in its own
-                    voice. I find meaning in the spaces, the moments, and what passes between us, in all the things that
-                    are easy to overlook. In design, I believe in the weight of emptiness and what's implied. What is
-                    left out can be just as intentional as what remains.</p>
-                <br>
-                <p>Music is my unavoidable passion. I'm drawn to how it exists as a language, in words and beyond them,
-                    expressed through melody, rhythm, and harmony. It's a passion I follow into everything I do. I sing
-                    and arrange for <a href="https://www.instagram.com/trogonsacappella/" class="about-inline-link"
-                        target="_blank" rel="noopener noreferrer">Trogons</a>, USC's premier East Asian a cappella group,
-                    and co-design social media for <a href="https://www.instagram.com/uscbandkori/"
-                        class="about-inline-link" target="_blank" rel="noopener noreferrer">Band Kori</a>, USC's one and
-                    only K-pop band. Culture and identity are always somewhere in my work, shaping the kind of thinking
-                    that doesn't fit neatly into one category.</p>
-
-                <div class="social-links">
-                    <a href="https://drive.google.com/file/d/13wcpUpQnuilo_vJqdJjjLTju_J4TU06J/view?usp=sharing"
-                        target="_blank" rel="noopener noreferrer">Resume</a>
-                    <a href="https://www.linkedin.com/in/genuine-ko-251944326" target="_blank"
-                        rel="noopener noreferrer">LinkedIn</a>
-                </div>
-                <div class="about-contact">
-                    <p class="about-contact__label">Contact</p>
-                    <div class="about-contact__emails">
-                        <a href="mailto:kogenuine@gmail.com">kogenuine@gmail.com</a>
-                        <a href="mailto:yujinko@usc.edu">yujinko@usc.edu</a>
-                    </div>
-                </div>
-            </div>
-            <div class="about-right">
-                <img src="./images/me.png" alt="Genuine Ko">
-            </div>
-        </section>
+        </div>
     </main>
 
+    <!-- Project detail: centered popup over dimmed backdrop -->
+    <div class="work-detail-layer" id="work-detail-layer" aria-hidden="true">
+        <div class="work-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="work-detail-title">
+            <button type="button" class="work-detail-close" id="work-detail-close" aria-label="Close project">
+                <span class="work-detail-close__icon" aria-hidden="true">×</span>
+            </button>
+            <div class="work-detail-panel" id="work-detail-panel">
+            <aside class="work-detail-thumbs" id="work-detail-thumbs"></aside>
+            <header class="work-detail-heading">
+                <h2 class="work-detail-title" id="work-detail-title"></h2>
+                <p class="work-detail-year" id="work-detail-year" hidden></p>
+            </header>
+            <div class="work-detail-main">
+                <div class="work-detail-main__column">
+                    <div id="work-detail-video" class="work-detail-video" hidden>
+                        <iframe
+                            id="work-detail-youtube"
+                            class="work-detail-youtube"
+                            title="Project video"
+                            referrerpolicy="strict-origin-when-cross-origin"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowfullscreen
+                            loading="lazy"></iframe>
+                    </div>
+                    <div
+                        class="work-detail-article-lead"
+                        id="work-detail-article-lead"
+                        hidden
+                        aria-label="Project introduction"></div>
+                    <img src="" alt="" id="work-detail-hero">
+                    <div
+                        class="work-detail-article-after-hero"
+                        id="work-detail-article-after-hero"
+                        hidden
+                        aria-label="Project essay"></div>
+                    <div class="detail-artwork-footer">
+                        <div class="detail-artwork-description" id="work-detail-artwork-description" hidden></div>
+                        <div class="detail-artwork-spec" id="work-detail-artwork-spec" hidden></div>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="work-detail-article"
+                id="work-detail-article"
+                hidden
+                aria-label="Project write-up"></div>
+            <article class="work-detail-meta">
+                <p class="work-detail-desc" id="work-detail-desc"></p>
+            </article>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+    <script src="obj-viewer.js"></script>
     <script src="script.js"></script>
 </body>
 
