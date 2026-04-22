@@ -39,7 +39,7 @@ window.PORTFOLIO_GALLERY = {
             title: "Crescendo",
             year: "2024",
             feedBlurb:
-                "Inspired by my appreciation for the power of music, this project evolved into a brand concept that helps people with verbal communication challenges find their voice.",
+                "Inspired by my appreciation for the power of music, this project evolved into a brand concept that helps people who struggle with verbal communication find their own voice.",
             detailArticleHtml:
                 "<p>Inspired by my appreciation for the power of music, this project evolved into a brand concept that helps people with verbal communication challenges find their voice.</p>",
             /* Detail order: title → intro text → 4.jpg (hero) → CS1–CS4 (stacked); slice(1) = CS1…CS4 */
