@@ -237,6 +237,8 @@ main.site-shell {
     width: 20px;
     height: 20px;
     display: block;
+    flex-shrink: 0;
+    shape-rendering: geometricPrecision;
 }
 
 .site-content {
