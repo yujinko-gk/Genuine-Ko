@@ -303,6 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /** Matches `title` in projects-data.js: even index = left column, odd = right (each column stacks top → bottom). */
     const PORTFOLIO_FEED_ORDER = [
+        'Redesign the Ordinary: Jorgenson Lockers',
         'Crescendo',
         'Postcards',
         '愛 (the invisible)',
@@ -1055,16 +1056,29 @@ document.addEventListener('DOMContentLoaded', () => {
             const rasterSlideEntries = slides
                 .map((src, si) => ({ src, si }))
                 .filter(({ src }) => !/\.obj$/i.test(src));
-            if (rasterSlideEntries.length > 1 && !useMainGrid) {
+            const feedThumbIdx =
+                Array.isArray(item.workFeedThumbSlideIndices) && item.workFeedThumbSlideIndices.length > 0
+                    ? new Set(
+                          item.workFeedThumbSlideIndices.filter(
+                              (i) => Number.isInteger(i) && i >= 0 && i < rasterSlideEntries.length
+                          )
+                      )
+                    : null;
+            const feedThumbEntries = feedThumbIdx
+                ? rasterSlideEntries.filter(({ si }) => feedThumbIdx.has(si))
+                : rasterSlideEntries;
+            const heroSlideIdx = Math.max(0, slides.indexOf(item.src));
+            if (feedThumbEntries.length > 1 && !useMainGrid) {
                 const thumbsRow = document.createElement('div');
                 thumbsRow.className = 'work-feed-item__thumbs';
-                rasterSlideEntries.forEach(({ src, si }, ti) => {
+                feedThumbEntries.forEach(({ src, si }) => {
                     const tb = document.createElement('button');
                     tb.type = 'button';
-                    tb.className = 'work-feed-thumb' + (ti === 0 ? ' active' : '');
+                    const isActive = si === heroSlideIdx;
+                    tb.className = 'work-feed-thumb' + (isActive ? ' active' : '');
                     tb.dataset.slideIndex = String(si);
                     tb.setAttribute('aria-label', `Show image ${si + 1} in preview`);
-                    if (ti === 0) tb.setAttribute('aria-current', 'true');
+                    if (isActive) tb.setAttribute('aria-current', 'true');
                     const im = document.createElement('img');
                     im.src = src;
                     im.alt = '';

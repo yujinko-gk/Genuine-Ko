@@ -4,11 +4,37 @@
  * - `feedBlurb` (design): work feed caption under the image; overrides `longDesc` / `desc` / `shortDesc` when set.
  * - `longDesc` / `desc` / `shortDesc` (design): feed caption when no `feedBlurb` (`longDesc` first). Fine art feed: `artworkDescription`, else `desc`.
  * - `longDesc` + `body` (design): in-page / standalone detail footer (#work-detail-artwork-description / #detail-artwork-description) when layout is NOT scroll-page. First paragraph = `longDesc || desc`, second = `body`.
- * - `detailArticleHtml`, `detailArticleHtmlAfterHero`, `detailArticleHtmlAfterFirstStackedImage`, `detailArticleStackHeading`: scroll-page design detail only (slides > 2 or `detailScrollPage`), via portfolioDetailScrollArticle* helpers.
+ * - `workFeedThumbSlideIndices` (design, optional): 0-based indices into `slides` for which images appear in the work-feed thumbnail strip only; `slides` / detail unchanged.
+ * - `detailArticleHtml`, `detailArticleHtmlAfterHero`, `detailArticleHtmlAfterFirstStackedImage`, `detailArticleStackHeading`: scroll-page design detail (slides > 2 or `detailScrollPage`), via portfolioDetailScrollArticle* helpers.
  * - `detailDesc` / year in index modal: hidden for design + fine art (copy lives in artwork footer instead).
  */
 window.PORTFOLIO_GALLERY = {
     design: [
+        {
+            src: "./images/JGS.pdf/9.png",
+            title: "Redesign the Ordinary: Jorgenson Lockers",
+            longDesc:
+                "Through a redesigned logo and visual identity, this project reimagines Jorgenson Lockers to balance durability and stability with the creative and immersive qualities lockers can offer.",
+            body: "",
+            detailScrollPage: true,
+            slides: [
+                "./images/JGS.pdf/1.png",
+                "./images/JGS.pdf/2.png",
+                "./images/JGS.pdf/3.png",
+                "./images/JGS.pdf/4.png",
+                "./images/JGS.pdf/5.png",
+                "./images/JGS.pdf/6.png",
+                "./images/JGS.pdf/7.png",
+                "./images/JGS.pdf/8.png",
+                "./images/JGS.pdf/9.png",
+                "./images/JGS.pdf/10.png",
+                "./images/JGS.pdf/11.png",
+                "./images/JGS.pdf/12.png",
+                "./images/JGS.pdf/13.png",
+            ],
+            /* Main feed: strip shows slides 7–13 only (indices 6–12). Detail still uses full `slides`. */
+            workFeedThumbSlideIndices: [6, 7, 8, 9, 10, 11, 12],
+        },
         {
             src: "./images/3.png",
             title: "Fujii Kaze Poster",
