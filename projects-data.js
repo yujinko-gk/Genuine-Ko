@@ -78,12 +78,13 @@ window.PORTFOLIO_GALLERY = {
             ],
         },
         {
-            src: "./images/GENUINE.jpg",
-            title: "BAND KORI",
+            src: "./images/UO.png",
+            title: "3D Unreal Object",
             year: "2026",
             longDesc:
-                "Social media content design for a K-pop band at USC, with a Y2K theme.",
-            slides: ["./images/GENUINE.jpg", "./images/AMANDA.jpg", "./images/LILLIAN.jpg"],
+                "A kitbashed 3D object merging the Playmobil aesthetic with a drum kit.",
+            detailScrollPage: true,
+            slides: ["./images/UO.png", "./images/Unreal Object.obj"],
         },
         {
             src: "./images/INDIEGO/PF4.png",
@@ -103,13 +104,12 @@ window.PORTFOLIO_GALLERY = {
             ],
         },
         {
-            src: "./images/UO.png",
-            title: "3D Unreal Object",
+            src: "./images/GENUINE.jpg",
+            title: "BAND KORI",
             year: "2026",
             longDesc:
-                "A kitbashed 3D object merging the Playmobil aesthetic with a drum kit.",
-            detailScrollPage: true,
-            slides: ["./images/UO.png", "./images/Unreal Object.obj"],
+                "Social media content design for a K-pop band at USC, with a Y2K theme.",
+            slides: ["./images/GENUINE.jpg", "./images/AMANDA.jpg", "./images/LILLIAN.jpg"],
         },
         {
             src: "./images/IN.png",
