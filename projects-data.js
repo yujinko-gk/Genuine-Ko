@@ -11,7 +11,7 @@
 window.PORTFOLIO_GALLERY = {
     design: [
         {
-            src: "./images/JGS.pdf/9.png",
+            src: "./images 2/JGS.pdf/9.webp",
             width: 1920,
             height: 1080,
             title: "Redesign the Ordinary: Jorgenson Lockers",
@@ -20,25 +20,25 @@ window.PORTFOLIO_GALLERY = {
             body: "",
             detailScrollPage: true,
             slides: [
-                "./images/JGS.pdf/1.png",
-                "./images/JGS.pdf/2.png",
-                "./images/JGS.pdf/3.png",
-                "./images/JGS.pdf/4.png",
-                "./images/JGS.pdf/5.png",
-                "./images/JGS.pdf/6.png",
-                "./images/JGS.pdf/7.png",
-                "./images/JGS.pdf/8.png",
-                "./images/JGS.pdf/9.png",
-                "./images/JGS.pdf/10.png",
-                "./images/JGS.pdf/11.png",
-                "./images/JGS.pdf/12.png",
-                "./images/JGS.pdf/13.png",
+                "./images 2/JGS.pdf/1.webp",
+                "./images 2/JGS.pdf/2.webp",
+                "./images 2/JGS.pdf/3.webp",
+                "./images 2/JGS.pdf/4.webp",
+                "./images 2/JGS.pdf/5.webp",
+                "./images 2/JGS.pdf/6.webp",
+                "./images 2/JGS.pdf/7.webp",
+                "./images 2/JGS.pdf/8.webp",
+                "./images 2/JGS.pdf/9.webp",
+                "./images 2/JGS.pdf/10.webp",
+                "./images 2/JGS.pdf/11.webp",
+                "./images 2/JGS.pdf/12.webp",
+                "./images 2/JGS.pdf/13.webp",
             ],
             /* Main feed: strip shows slides 7–13 only (indices 6–12). Detail still uses full `slides`. */
             workFeedThumbSlideIndices: [6, 7, 8, 9, 10, 11, 12],
         },
         {
-            src: "./images/3.png",
+            src: "./images 2/3.webp",
             width: 5254,
             height: 3248,
             title: "Fujii Kaze Poster",
@@ -47,10 +47,10 @@ window.PORTFOLIO_GALLERY = {
             detailScrollPage: true,
             detailArticleHtml:
                 "<p>A fan art poster exploring visual hierarchy and design elements</p>",
-            slides: ["./images/3.png", "./images/3.1.jpg"],
+            slides: ["./images 2/3.webp", "./images 2/3.1.webp"],
         },
         {
-            src: "./images/1.jpg",
+            src: "./images 2/1.webp",
             width: 3000,
             height: 1854,
             title: "Postcards",
@@ -58,15 +58,15 @@ window.PORTFOLIO_GALLERY = {
             longDesc:
                 "Postcards filled with moments that grow more meaningful when shared.",
             slides: [
-                "./images/1.jpg",
-                "./images/PC1.jpg",
-                "./images/PC2.jpg",
-                "./images/PC3.jpg",
-                "./images/PC4.JPG",
+                "./images 2/1.webp",
+                "./images 2/PC1.webp",
+                "./images 2/PC2.webp",
+                "./images 2/PC3.webp",
+                "./images 2/PC4.webp",
             ],
         },
         {
-            src: "./images/4.jpg",
+            src: "./images 2/4.webp",
             width: 4001,
             height: 2473,
             detailStartIndex: 0,
@@ -78,25 +78,25 @@ window.PORTFOLIO_GALLERY = {
                 "<p>Inspired by my appreciation for the power of music, this project evolved into a brand concept that helps people with verbal communication challenges find their voice.</p>",
             /* Detail order: title → intro text → 4.jpg (hero) → CS1–CS4 (stacked); slice(1) = CS1…CS4 */
             slides: [
-                "./images/4.jpg",
-                "./images/CS1.jpg",
-                "./images/CS2.jpg",
-                "./images/CS3.jpg",
-                "./images/CS4.jpg",
+                "./images 2/4.webp",
+                "./images 2/CS1.webp",
+                "./images 2/CS2.webp",
+                "./images 2/CS3.webp",
+                "./images 2/CS4.webp",
             ],
         },
         {
-            src: "./images/GENUINE.jpg",
+            src: "./images 2/GENUINE.webp",
             width: 1080,
             height: 1350,
             title: "BAND KORI",
             year: "2026",
             longDesc:
                 "Social media content design for a K-pop band at USC, with a Y2K theme.",
-            slides: ["./images/GENUINE.jpg", "./images/AMANDA.jpg", "./images/LILLIAN.jpg"],
+            slides: ["./images 2/GENUINE.webp", "./images 2/AMANDA.webp", "./images 2/LILLIAN.webp"],
         },
         {
-            src: "./images/INDIEGO/PF4.png",
+            src: "./images 2/INDIEGO/PF4.webp",
             width: 6755,
             height: 4175,
             detailStartIndex: 0,
@@ -105,17 +105,17 @@ window.PORTFOLIO_GALLERY = {
             feedBlurb:
                 "INDIEGO is a concept music festival identity that moves between curated performances and open competition. The visual system is built on a monochromatic violet scale, mapping how emerging artists begin invisible and become legible over time.",
             slides: [
-                "./images/INDIEGO/PF1.png",
-                "./images/INDIEGO/PF2.png",
-                "./images/INDIEGO/PF3.png",
-                "./images/INDIEGO/PF4.png",
-                "./images/INDIEGO/PF5.png",
-                "./images/INDIEGO/PF6.png",
-                "./images/INDIEGO/PF7.png",
+                "./images 2/INDIEGO/PF1.webp",
+                "./images 2/INDIEGO/PF2.webp",
+                "./images 2/INDIEGO/PF3.webp",
+                "./images 2/INDIEGO/PF4.webp",
+                "./images 2/INDIEGO/PF5.webp",
+                "./images 2/INDIEGO/PF6.webp",
+                "./images 2/INDIEGO/PF7.webp",
             ],
         },
         {
-            src: "./images/UO.png",
+            src: "./images 2/UO.webp",
             width: 1080,
             height: 1080,
             title: "3D Unreal Object",
@@ -123,10 +123,10 @@ window.PORTFOLIO_GALLERY = {
             longDesc:
                 "A kitbashed 3D object merging the Playmobil aesthetic with a drum kit.",
             detailScrollPage: true,
-            slides: ["./images/UO.png", "./images/Unreal Object.obj"],
+            slides: ["./images 2/UO.webp", "./images/Unreal Object.obj"],
         },
         {
-            src: "./images/IN.png",
+            src: "./images 2/IN.webp",
             width: 8846,
             height: 5466,
             title: "Research Project: The Transformation of the Digital Music Ecosystem",
@@ -140,17 +140,17 @@ window.PORTFOLIO_GALLERY = {
                 "<p>Even though the number of listeners increased dramatically since 1999, industry revenue shrank for years before slowly recovering. This was largely due to the shift in listening methods, from physical ownership to subscription-based streaming. This suggests that increased access does not automatically translate into revenue. Now that AI-generated music is entering the market, it has opened up a new kind of conflict that we have not experienced before. AI can produce music faster and on a larger scale, and it challenges ideas of authorship and originality, raising new questions about copyright and creative labor.</p>",
             detailArticleStackHeading: "Close up shots",
             slides: [
-                "./images/IN.png",
-                "./images/INFO 1/1.png",
-                "./images/INFO 1/2.png",
-                "./images/INFO 1/3.png",
-                "./images/INFO 1/4.png",
+                "./images 2/IN.webp",
+                "./images 2/INFO 1/1.webp",
+                "./images 2/INFO 1/2.webp",
+                "./images 2/INFO 1/3.webp",
+                "./images 2/INFO 1/4.webp",
             ],
         },
     ],
     fineart: [
         {
-            src: "./images/art1.jpg",
+            src: "./images 2/art1.webp",
             title: "愛 (the invisible)",
             artworkDescription:
                 "Words cannot fully capture the nature of love and affection across time and moments.",
@@ -159,7 +159,7 @@ window.PORTFOLIO_GALLERY = {
             },
         },
         {
-            src: "./images/art2.jpg",
+            src: "./images 2/art2.webp",
             title: "The Elusive",
             artworkDescription:
                 "People sometimes treat others as extensions of themselves, but we all live our own lives. No one can truly be held.",
@@ -168,7 +168,7 @@ window.PORTFOLIO_GALLERY = {
             },
         },
         {
-            src: "./images/art3.jpg",
+            src: "./images 2/art3.webp",
             title: "Remnants of Being",
             artworkDescription:
                 "A pen drawing capturing the traces left behind in the bathroom of Mosaic House, Venice, CA.",
@@ -177,7 +177,7 @@ window.PORTFOLIO_GALLERY = {
             },
         },
         {
-            src: "./images/art4.jpg",
+            src: "./images 2/art4.webp",
             title: "Natural Forms",
             artworkDescription:
                 "An abstract exploration of natural forms inspired by the patterns and shapes found in nature.",
@@ -186,10 +186,10 @@ window.PORTFOLIO_GALLERY = {
             },
         },
         {
-            src: "./images/anxiety.png",
+            src: "./images 2/anxiety.webp",
             title: "Anxiety: Experimental Video Art",
             year: "2025",
-            slides: ["./images/anxiety.png"],
+            slides: ["./images 2/anxiety.webp"],
             youtubeUrl: "https://youtu.be/QlxtINml57g?si=HdDlkoYDDYY6AhW1",
             artworkDescription: "",
             artworkSpec: {
