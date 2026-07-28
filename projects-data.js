@@ -12,6 +12,8 @@ window.PORTFOLIO_GALLERY = {
     design: [
         {
             src: "./images/JGS.pdf/9.png",
+            width: 1920,
+            height: 1080,
             title: "Redesign the Ordinary: Jorgenson Lockers",
             longDesc:
                 "Through a redesigned logo and visual identity, this project reimagines Jorgenson Lockers to balance durability and stability with the creative and immersive qualities lockers can offer.",
@@ -37,6 +39,8 @@ window.PORTFOLIO_GALLERY = {
         },
         {
             src: "./images/3.png",
+            width: 5254,
+            height: 3248,
             title: "Fujii Kaze Poster",
             year: "2025",
             longDesc: "A fan art poster exploring visual hierarchy and design elements",
@@ -47,6 +51,8 @@ window.PORTFOLIO_GALLERY = {
         },
         {
             src: "./images/1.jpg",
+            width: 3000,
+            height: 1854,
             title: "Postcards",
             year: "2024",
             longDesc:
@@ -61,6 +67,8 @@ window.PORTFOLIO_GALLERY = {
         },
         {
             src: "./images/4.jpg",
+            width: 4001,
+            height: 2473,
             detailStartIndex: 0,
             title: "Crescendo",
             year: "2024",
@@ -78,16 +86,19 @@ window.PORTFOLIO_GALLERY = {
             ],
         },
         {
-            src: "./images/UO.png",
-            title: "3D Unreal Object",
+            src: "./images/GENUINE.jpg",
+            width: 1080,
+            height: 1350,
+            title: "BAND KORI",
             year: "2026",
             longDesc:
-                "A kitbashed 3D object merging the Playmobil aesthetic with a drum kit.",
-            detailScrollPage: true,
-            slides: ["./images/UO.png", "./images/Unreal Object.obj"],
+                "Social media content design for a K-pop band at USC, with a Y2K theme.",
+            slides: ["./images/GENUINE.jpg", "./images/AMANDA.jpg", "./images/LILLIAN.jpg"],
         },
         {
             src: "./images/INDIEGO/PF4.png",
+            width: 6755,
+            height: 4175,
             detailStartIndex: 0,
             title: "INDIEGO",
             year: "2026",
@@ -104,15 +115,20 @@ window.PORTFOLIO_GALLERY = {
             ],
         },
         {
-            src: "./images/GENUINE.jpg",
-            title: "BAND KORI",
+            src: "./images/UO.png",
+            width: 1080,
+            height: 1080,
+            title: "3D Unreal Object",
             year: "2026",
             longDesc:
-                "Social media content design for a K-pop band at USC, with a Y2K theme.",
-            slides: ["./images/GENUINE.jpg", "./images/AMANDA.jpg", "./images/LILLIAN.jpg"],
+                "A kitbashed 3D object merging the Playmobil aesthetic with a drum kit.",
+            detailScrollPage: true,
+            slides: ["./images/UO.png", "./images/Unreal Object.obj"],
         },
         {
             src: "./images/IN.png",
+            width: 8846,
+            height: 5466,
             title: "Research Project: The Transformation of the Digital Music Ecosystem",
             year: "2026",
             feedBlurb:

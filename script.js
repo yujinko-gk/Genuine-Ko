@@ -1,4 +1,50 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Lazy-loaded 3D viewer stack (Three.js + OBJLoader + obj-viewer.js) ---
+    // Only fetched when a project detail actually contains a .obj model,
+    // instead of on every single page load.
+    let objViewerStackPromise = null;
+    function loadScriptOnce(src) {
+        return new Promise((resolve, reject) => {
+            const existing = document.querySelector('script[src="' + src + '"]');
+            if (existing) {
+                resolve();
+                return;
+            }
+            const s = document.createElement('script');
+            s.src = src;
+            s.onload = () => resolve();
+            s.onerror = () => reject(new Error('Failed to load script: ' + src));
+            document.body.appendChild(s);
+        });
+    }
+    function loadObjViewerStack() {
+        if (!objViewerStackPromise) {
+            objViewerStackPromise = loadScriptOnce(
+                'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'
+            )
+                .then(() =>
+                    loadScriptOnce(
+                        'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js'
+                    )
+                )
+                .then(() => loadScriptOnce('obj-viewer.js'))
+                .then(() => {
+                    console.log('[3D viewer] dependencies loaded:', {
+                        THREE: typeof window.THREE,
+                        OBJLoader: typeof (window.THREE && window.THREE.OBJLoader),
+                        initFn: typeof window.initPortfolioObjViewers,
+                    });
+                })
+                .catch((err) => {
+                    // Allow the next open attempt to retry instead of being
+                    // permanently stuck on a failed Promise.
+                    objViewerStackPromise = null;
+                    throw err;
+                });
+        }
+        return objViewerStackPromise;
+    }
+
     const useFinePointerChrome =
         window.matchMedia('(pointer: fine)').matches &&
         window.matchMedia('(hover: hover)').matches;
@@ -307,11 +353,11 @@ document.addEventListener('DOMContentLoaded', () => {
         'Crescendo',
         'Postcards',
         '愛 (the invisible)',
-        'BAND KORI',
+        '3D Unreal Object',
         'The Elusive',
         'INDIEGO',
         'Research Project: The Transformation of the Digital Music Ecosystem',
-        '3D Unreal Object',
+        'BAND KORI',
         'Natural Forms',
         'Remnants of Being',
         'Fujii Kaze Poster',
@@ -873,8 +919,16 @@ document.addEventListener('DOMContentLoaded', () => {
             /* After .active + layout: avoids 0-size stage and ensures THREE is ready */
             window.requestAnimationFrame(function () {
                 window.requestAnimationFrame(function () {
-                    if (typeof window.initPortfolioObjViewers === 'function') {
-                        window.initPortfolioObjViewers(workDetailArticle);
+                    if (workDetailArticle.querySelector('.work-detail-obj-viewer-wrap')) {
+                        loadObjViewerStack()
+                            .then(function () {
+                                if (typeof window.initPortfolioObjViewers === 'function') {
+                                    window.initPortfolioObjViewers(workDetailArticle);
+                                }
+                            })
+                            .catch(function (err) {
+                                console.error('Failed to load 3D viewer dependencies', err);
+                            });
                     }
                 });
             });
@@ -1005,6 +1059,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 hero.src = item.src;
                 hero.alt = item.title ? `${item.title}` : 'Project';
                 hero.loading = 'lazy';
+                hero.decoding = 'async';
+                if (Number.isFinite(item.width) && Number.isFinite(item.height)) {
+                    hero.width = item.width;
+                    hero.height = item.height;
+                }
                 const startSlide = Math.max(0, slides.indexOf(item.src));
                 hero.dataset.slideIndex = String(Number.isNaN(startSlide) ? 0 : startSlide);
                 media.appendChild(hero);
@@ -1082,6 +1141,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const im = document.createElement('img');
                     im.src = src;
                     im.alt = '';
+                    im.loading = 'lazy';
+                    im.decoding = 'async';
                     tb.appendChild(im);
                     thumbsRow.appendChild(tb);
                 });
