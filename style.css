@@ -2719,16 +2719,13 @@ body.project-detail-page.project-detail--youtube .detail-figure {
         gap: 8px;
         padding: 0.65rem max(10px, env(safe-area-inset-left, 0px)) 2.5rem
             max(10px, env(safe-area-inset-right, 0px));
+        flex-direction: column;
     }
 
     .work-feed__col {
-        gap: 8px;
-    }
-
-    .work-feed-item__rule,
-    .work-feed-item__copy,
-    .work-feed-item--caption .work-feed-item__copy {
-        display: none;
+        gap: 12px;
+        width: 100%;
+        flex: 1 1 auto;
     }
 
     .work-feed-item__info {
@@ -2747,9 +2744,16 @@ body.project-detail-page.project-detail--youtube .detail-figure {
         margin-top: 0.35rem;
     }
 
+    .work-feed-item__media {
+        background: transparent;
+    }
+
     .work-feed-item__media img {
         max-width: 100%;
-        max-height: min(70vh, 640px);
+        width: 100%;
+        max-height: none;
+        height: auto;
+        object-fit: contain;
     }
 
     .work-feed-item__media--cover-fill img {
@@ -2854,10 +2858,14 @@ body.project-detail-page.project-detail--youtube .detail-figure {
     }
 
     #work-detail-hero {
-        max-height: min(46vh, 340px);
-        min-height: 180px;
+        max-height: none;
+        min-height: 0;
+        width: 100%;
+        max-width: 100%;
+        height: auto;
         margin-left: auto;
         margin-right: auto;
+        object-fit: contain;
         transition: none;
     }
 

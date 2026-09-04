@@ -350,7 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const PORTFOLIO_FEED_ORDER = [
         'BAND KORI: E-BOARD',
         'BAND KORI: NEWBIES',
-        'Fujii Kaze Poster',
+        'Fujii Kaze',
         'Crescendo',
         'Postcards',
         'INDIEGO',
@@ -1153,6 +1153,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getWorkFeedColumnCount() {
+        if (window.matchMedia('(max-width: 768px)').matches) return 1;
         if (window.matchMedia('(min-width: 1280px)').matches) return 3;
         return 2;
     }
@@ -1162,7 +1163,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function getWorkFeedDisplayList(columnCount) {
         const list = currentImages.map((item, projectIndex) => ({ item, projectIndex }));
         if (columnCount !== 2) return list;
-        const fujiiIdx = list.findIndex((e) => e.item.title === 'Fujii Kaze Poster');
+        const fujiiIdx = list.findIndex((e) => e.item.title === 'Fujii Kaze');
         const jorgensonIdx = list.findIndex(
             (e) => e.item.title === 'Redesign the Ordinary: Jorgenson Lockers'
         );

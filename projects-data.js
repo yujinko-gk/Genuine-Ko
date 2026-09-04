@@ -45,7 +45,7 @@ window.PORTFOLIO_GALLERY = {
             src: "./images 2/Fujii Kaze poster only.webp",
             width: 2000,
             height: 2860,
-            title: "Fujii Kaze Poster",
+            title: "Fujii Kaze",
             year: "2025",
             detailHideYear: true,
             longDesc: "A fan art poster exploring visual hierarchy and design elements",
