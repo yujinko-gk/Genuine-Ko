@@ -133,7 +133,8 @@ document.addEventListener("DOMContentLoaded", () => {
         artworkSpecEl.classList.remove("detail-artwork-spec--year-only");
 
         if (isDesign) {
-            const y = (project.year || "").trim();
+            const hideYear = project.detailHideYear === true;
+            const y = hideYear ? "" : (project.year || "").trim();
             if (!y) {
                 artworkSpecEl.hidden = true;
                 artworkSpecEl.replaceChildren();

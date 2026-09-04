@@ -340,37 +340,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Page Transitions ---
     const navDesign = document.getElementById('nav-design');
-    const navArt = document.getElementById('nav-art');
     const navAbout = document.getElementById('nav-about');
     const logo = document.getElementById('logo');
 
     // --- Work feed (single scrollable list: custom order, pairs read left → right in the grid) ---
     const galleryData = window.PORTFOLIO_GALLERY || { design: [], fineart: [] };
 
-    /** Matches `title` in projects-data.js: even index = left column, odd = right (each column stacks top → bottom). */
+    /** Matches `title` in projects-data.js: index % columnCount picks the column (1 / 2 / 3 cols by viewport). */
     const PORTFOLIO_FEED_ORDER = [
-        'Redesign the Ordinary: Jorgenson Lockers',
+        'BAND KORI: E-BOARD',
+        'BAND KORI: NEWBIES',
+        'Fujii Kaze Poster',
         'Crescendo',
         'Postcards',
-        '愛 (the invisible)',
-        '3D Unreal Object',
-        'The Elusive',
         'INDIEGO',
+        'Redesign the Ordinary: Jorgenson Lockers',
         'Research Project: The Transformation of the Digital Music Ecosystem',
-        'BAND KORI',
-        'Natural Forms',
-        'Remnants of Being',
-        'Fujii Kaze Poster',
-        'Anxiety',
     ];
 
-    /** `section`: `design` | `art` (fine art only). Order follows PORTFOLIO_FEED_ORDER within that section. */
-    function mergePortfolioProjects(data, section) {
+    /** Order follows PORTFOLIO_FEED_ORDER (design projects only). */
+    function mergePortfolioProjects(data) {
         const design = Array.isArray(data.design) ? data.design : [];
-        const fine = Array.isArray(data.fineart) ? data.fineart : [];
-        const d = design.map((p) => ({ ...p, _kind: 'design' }));
-        const f = fine.map((p) => ({ ...p, _kind: 'fineart' }));
-        const sourceList = section === 'art' ? f : d;
+        const sourceList = design.map((p) => ({ ...p, _kind: 'design' }));
         const byTitle = new Map(sourceList.map((p) => [p.title, p]));
         const out = [];
         const seen = new Set();
@@ -410,6 +401,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const IMAGE_FADE_MS = 260;
+    const CAROUSEL_SLIDE_MS = 340;
+    let carouselSlideBusy = false;
 
     function fadeSwapImage(imgEl, nextSrc, onAfterSwap) {
         if (!imgEl || !nextSrc) return;
@@ -421,8 +414,63 @@ document.addEventListener('DOMContentLoaded', () => {
         }, IMAGE_FADE_MS);
     }
 
+    function applyCarouselStageFrame(item) {
+        if (!detailHeroStage) return;
+        if (!item || item.detailCarousel !== true) {
+            detailHeroStage.style.removeProperty('--carousel-w');
+            detailHeroStage.style.removeProperty('--carousel-h');
+            return;
+        }
+        const w = Number.isFinite(item.feedCoverWidth)
+            ? item.feedCoverWidth
+            : Number.isFinite(item.width)
+              ? item.width
+              : 1080;
+        const h = Number.isFinite(item.feedCoverHeight)
+            ? item.feedCoverHeight
+            : Number.isFinite(item.height)
+              ? item.height
+              : 1350;
+        detailHeroStage.style.setProperty('--carousel-w', String(w));
+        detailHeroStage.style.setProperty('--carousel-h', String(h));
+    }
+
+    function slideCarouselHero(nextSrc, direction, onDone) {
+        if (!detailHero || !detailHeroStage || !nextSrc) {
+            if (typeof onDone === 'function') onDone();
+            return;
+        }
+        if (carouselSlideBusy) return;
+        carouselSlideBusy = true;
+
+        const outgoing = detailHero;
+        const incoming = document.createElement('img');
+        incoming.className = 'work-detail-hero-twin';
+        incoming.alt = '';
+        incoming.src = nextSrc;
+        incoming.setAttribute('aria-hidden', 'true');
+        incoming.style.transform = `translateX(${direction > 0 ? '100%' : '-100%'})`;
+        detailHeroStage.appendChild(incoming);
+
+        outgoing.classList.add('work-detail-hero-slide');
+        void outgoing.offsetWidth;
+        requestAnimationFrame(() => {
+            outgoing.style.transform = `translateX(${direction > 0 ? '-100%' : '100%'})`;
+            incoming.style.transform = 'translateX(0)';
+        });
+
+        window.setTimeout(() => {
+            outgoing.src = nextSrc;
+            outgoing.style.transform = '';
+            outgoing.classList.remove('work-detail-hero-slide');
+            incoming.remove();
+            carouselSlideBusy = false;
+            if (typeof onDone === 'function') onDone();
+        }, CAROUSEL_SLIDE_MS);
+    }
+
     const aboutPortraitImg = document.querySelector('.about-portrait');
-    const ABOUT_PORTRAIT_SRC = './images/me%204.png';
+    const ABOUT_PORTRAIT_SRC = './images%202/me%204.webp';
     const aboutPortraitPreload = new Image();
     aboutPortraitPreload.src = ABOUT_PORTRAIT_SRC;
     if (aboutPortraitPreload.decode) {
@@ -447,7 +495,6 @@ document.addEventListener('DOMContentLoaded', () => {
         applyAboutPortrait();
     }
 
-    let workSection = 'design';
     let currentImages = [];
     let currentGalleryIndex = 0;
 
@@ -458,6 +505,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const detailPanel = document.getElementById('work-detail-panel');
     const detailThumbs = document.getElementById('work-detail-thumbs');
     const detailHero = document.getElementById('work-detail-hero');
+    const detailHeroStage = document.getElementById('work-detail-hero-stage');
+    const detailPrev = document.getElementById('work-detail-prev');
+    const detailNext = document.getElementById('work-detail-next');
     const detailVideo = document.getElementById('work-detail-video');
     const detailYoutubeFrame = document.getElementById('work-detail-youtube');
     const detailTitle = document.getElementById('work-detail-title');
@@ -498,41 +548,75 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateWorkDetailHeroAdvanceState() {
         if (!detailHero) return;
         const multi = detailSlideSources.length > 1;
-        detailHero.classList.toggle('detail-hero--advance', multi);
-        if (multi) {
+        const carousel = detailLayer?.classList.contains('work-detail--carousel');
+        detailHero.classList.toggle('detail-hero--advance', multi && !carousel);
+        if (multi && !carousel) {
             detailHero.setAttribute('role', 'button');
             detailHero.setAttribute('tabindex', '0');
             detailHero.setAttribute(
                 'aria-label',
-                'Show next image. Use Arrow Down for next and Arrow Up for previous.'
+                'Show next image. Use Arrow Right for next and Arrow Left for previous.'
             );
         } else {
             detailHero.removeAttribute('role');
             detailHero.removeAttribute('tabindex');
             detailHero.removeAttribute('aria-label');
         }
+        updateDetailCarouselNav();
     }
 
-    function goToDetailSlide(nextIndex) {
+    function updateDetailCarouselNav() {
+        const show =
+            detailOpen &&
+            detailSlideSources.length > 1 &&
+            detailLayer?.classList.contains('work-detail--carousel');
+        if (detailPrev) detailPrev.hidden = !show;
+        if (detailNext) detailNext.hidden = !show;
+    }
+
+    function goToDetailSlide(nextIndex, options = {}) {
         if (!detailOpen || !detailHero || detailSlideSources.length <= 1) return;
+        if (carouselSlideBusy) return;
         const n = detailSlideSources.length;
+        const from = detailSlideIndex;
         const idx = ((nextIndex % n) + n) % n;
+        if (idx === from && !options.force) return;
+
+        let direction = options.direction;
+        if (direction !== 1 && direction !== -1) {
+            direction = 1;
+            if (from === n - 1 && idx === 0) direction = 1;
+            else if (from === 0 && idx === n - 1) direction = -1;
+            else if (idx < from) direction = -1;
+            else if (idx > from) direction = 1;
+        }
+
         detailSlideIndex = idx;
         const src = detailSlideSources[idx];
         const item = currentImages[currentGalleryIndex];
-        fadeSwapImage(detailHero, src, () => {
-            detailHero.classList.remove('detail-hero-grow');
-            requestAnimationFrame(() => detailHero.classList.add('detail-hero-grow'));
-        });
+        const useCarousel = detailLayer?.classList.contains('work-detail--carousel');
+
+        if (useCarousel) {
+            slideCarouselHero(src, direction, () => {
+                detailHero.classList.add('detail-hero-grow');
+            });
+        } else {
+            fadeSwapImage(detailHero, src, () => {
+                detailHero.classList.remove('detail-hero-grow');
+                requestAnimationFrame(() => detailHero.classList.add('detail-hero-grow'));
+            });
+        }
         if (detailThumbs) {
             detailThumbs.querySelectorAll('.work-detail-thumb').forEach((b, i) => {
                 b.classList.toggle('active', i === idx);
             });
         }
         detailHero.alt = item ? `${item.title} — image ${idx + 1}` : 'Project image';
+        updateDetailCarouselNav();
     }
 
     function advanceWorkDetailHero(e) {
+        if (detailLayer?.classList.contains('work-detail--carousel')) return;
         if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
         if (e.type === 'keydown') e.preventDefault();
         if (!detailOpen || !detailHero || detailSlideSources.length <= 1) return;
@@ -542,6 +626,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (detailHero) {
         detailHero.addEventListener('click', advanceWorkDetailHero);
         detailHero.addEventListener('keydown', advanceWorkDetailHero);
+    }
+
+    if (detailPrev) {
+        detailPrev.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            goToDetailSlide(detailSlideIndex - 1, { direction: -1 });
+        });
+    }
+    if (detailNext) {
+        detailNext.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            goToDetailSlide(detailSlideIndex + 1, { direction: 1 });
+        });
     }
 
     function renderDetailThumbs(slides, activeIndex) {
@@ -582,11 +681,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (detailSlideSources.length > 1 && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
                 e.preventDefault();
                 const delta = e.key === 'ArrowDown' ? 1 : -1;
-                goToDetailSlide(detailSlideIndex + delta);
+                goToDetailSlide(detailSlideIndex + delta, { direction: delta });
                 return;
             }
-            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            if (detailSlideSources.length > 1 && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
                 e.preventDefault();
+                const delta = e.key === 'ArrowRight' ? 1 : -1;
+                goToDetailSlide(detailSlideIndex + delta, { direction: delta });
                 return;
             }
             return;
@@ -667,7 +768,8 @@ document.addEventListener('DOMContentLoaded', () => {
             workDetailArtworkSpec.classList.remove('detail-artwork-spec--year-only');
 
             if (isDesign) {
-                const y = (item.year != null ? String(item.year) : '').trim();
+                const hideYear = item.detailHideYear === true;
+                const y = hideYear ? '' : (item.year != null ? String(item.year) : '').trim();
                 if (!y) {
                     workDetailArtworkSpec.hidden = true;
                     workDetailArtworkSpec.replaceChildren();
@@ -739,9 +841,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const ytId = youtubeIdFromItem(item);
+        const useCarousel = item.detailCarousel === true;
         const scrollDetailPage =
             item._kind === 'design' &&
             !ytId &&
+            !useCarousel &&
             (item.detailScrollPage === true || slides.length > 2);
         if (scrollDetailPage) {
             activeSlide = 0;
@@ -778,6 +882,14 @@ document.addEventListener('DOMContentLoaded', () => {
             detailLayer.classList.remove('work-detail--design');
         }
 
+        if (useCarousel) {
+            detailLayer.classList.add('work-detail--carousel');
+            applyCarouselStageFrame(item);
+        } else {
+            detailLayer.classList.remove('work-detail--carousel');
+            applyCarouselStageFrame(null);
+        }
+
         if (isFineArt) {
             detailLayer.classList.add('work-detail--fine-art');
         } else {
@@ -802,7 +914,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         const hasMultipleSlides = slides.length > 1;
-        const showThumbs = !isFineArt && hasMultipleSlides && !scrollDetailPage;
+        const showThumbs = !isFineArt && hasMultipleSlides && !scrollDetailPage && !useCarousel;
 
         if (!showThumbs) {
             detailLayer.classList.add('work-detail--no-thumbs');
@@ -898,8 +1010,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 requestAnimationFrame(() => detailVideo.classList.add('detail-hero-grow'));
             }
         } else if (!detailHero.hidden) {
-            if (narrowWorkUi) {
-                /* Keep hero stable in layout — no scale-from-small entrance that reads as a jump */
+            if (useCarousel || narrowWorkUi) {
+                /* Keep hero stable — carousel uses translateX; avoid scale entrance */
                 detailHero.classList.add('detail-hero-grow');
             } else if (fromGalleryImage) {
                 detailHero.classList.add('detail-hero-from-gallery');
@@ -915,6 +1027,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         detailOpen = true;
         document.body.classList.add('work-detail-modal-open');
+        updateDetailCarouselNav();
         if (scrollDetailPage && workDetailArticle) {
             /* After .active + layout: avoids 0-size stage and ensures THREE is ready */
             window.requestAnimationFrame(function () {
@@ -954,6 +1067,11 @@ document.addEventListener('DOMContentLoaded', () => {
         detailLayer.classList.remove('work-detail--scroll-page');
         detailLayer.classList.remove('work-detail--design');
         detailLayer.classList.remove('work-detail--fine-art');
+        detailLayer.classList.remove('work-detail--carousel');
+        applyCarouselStageFrame(null);
+        carouselSlideBusy = false;
+        if (detailPrev) detailPrev.hidden = true;
+        if (detailNext) detailNext.hidden = true;
         if (workDetailArticleLead) {
             workDetailArticleLead.innerHTML = '';
             workDetailArticleLead.hidden = true;
@@ -985,21 +1103,47 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /** Keep the feed preview box the same size as the first main image (multi-slide cards only). */
+    function getFeedCoverSize(item) {
+        const w = item.feedCoverWidth;
+        const h = item.feedCoverHeight;
+        if (Number.isFinite(w) && Number.isFinite(h) && w > 0 && h > 0) {
+            return { width: w, height: h };
+        }
+        return null;
+    }
+
+    function applyFeedCoverFrame(media, item, hero) {
+        const cover = getFeedCoverSize(item);
+        if (!cover || !media || !hero) return false;
+        media.classList.add('work-feed-item__media--cover-fill');
+        media.style.setProperty('--feed-cover-w', String(cover.width));
+        media.style.setProperty('--feed-cover-h', String(cover.height));
+        hero.width = cover.width;
+        hero.height = cover.height;
+        hero.style.width = '100%';
+        hero.style.height = '100%';
+        hero.style.maxWidth = 'none';
+        hero.style.maxHeight = 'none';
+        hero.style.objectFit = 'cover';
+        hero.style.objectPosition = 'center center';
+        return true;
+    }
+
     function lockWorkFeedHeroSlot(media, hero) {
         const apply = () => {
             if (!hero.naturalWidth) return;
+            const nw = hero.naturalWidth;
+            const nh = hero.naturalHeight;
+            media.style.height = '';
+            media.style.aspectRatio = `${nw} / ${nh}`;
+            media.style.alignItems = 'center';
+            media.dataset.heroSlotLocked = '1';
             hero.style.removeProperty('max-height');
             hero.style.maxWidth = '100%';
             hero.style.width = '100%';
-            hero.style.height = 'auto';
-            hero.style.objectFit = 'contain';
-            void hero.offsetHeight;
-            const h = Math.round(hero.getBoundingClientRect().height);
-            if (h < 2) return;
-            media.style.height = `${h}px`;
-            media.style.alignItems = 'center';
-            media.dataset.heroSlotLocked = '1';
+            hero.style.height = '100%';
             hero.style.maxHeight = '100%';
+            hero.style.objectFit = 'contain';
         };
         if (hero.complete && hero.naturalWidth) {
             requestAnimationFrame(apply);
@@ -1008,17 +1152,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function getWorkFeedColumnCount() {
+        if (window.matchMedia('(min-width: 1280px)').matches) return 3;
+        return 2;
+    }
+
+    let workFeedColumnCount = getWorkFeedColumnCount();
+
+    function getWorkFeedDisplayList(columnCount) {
+        const list = currentImages.map((item, projectIndex) => ({ item, projectIndex }));
+        if (columnCount !== 2) return list;
+        const fujiiIdx = list.findIndex((e) => e.item.title === 'Fujii Kaze Poster');
+        const jorgensonIdx = list.findIndex(
+            (e) => e.item.title === 'Redesign the Ordinary: Jorgenson Lockers'
+        );
+        if (fujiiIdx < 0 || jorgensonIdx < 0) return list;
+        const next = list.slice();
+        const tmp = next[fujiiIdx];
+        next[fujiiIdx] = next[jorgensonIdx];
+        next[jorgensonIdx] = tmp;
+        return next;
+    }
+
     function renderWorkFeed() {
         if (!workFeed) return;
         workFeed.innerHTML = '';
-        const colLeft = document.createElement('div');
-        colLeft.className = 'work-feed__col work-feed__col--left';
-        const colRight = document.createElement('div');
-        colRight.className = 'work-feed__col work-feed__col--right';
-        workFeed.appendChild(colLeft);
-        workFeed.appendChild(colRight);
+        const columnCount = getWorkFeedColumnCount();
+        workFeedColumnCount = columnCount;
+        const displayList = getWorkFeedDisplayList(columnCount);
+        const cols = [];
+        for (let c = 0; c < columnCount; c++) {
+            const col = document.createElement('div');
+            col.className = 'work-feed__col';
+            if (c === 0) col.classList.add('work-feed__col--left');
+            if (c === columnCount - 1) col.classList.add('work-feed__col--right');
+            workFeed.appendChild(col);
+            cols.push(col);
+        }
 
-        currentImages.forEach((item, index) => {
+        displayList.forEach(({ item, projectIndex }, displayIndex) => {
             const kind = item._kind;
             const year = projectDisplayYear(item);
             const desc = projectFeedDescription(item, kind);
@@ -1031,8 +1203,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const article = document.createElement('article');
             article.className =
                 'work-feed-item' + (captionText ? ' work-feed-item--caption' : '');
-            article.dataset.projectIndex = String(index);
-            article.style.order = String(index);
+            article.dataset.projectIndex = String(projectIndex);
+            article.style.order = String(displayIndex);
 
             const useMainGrid =
                 item.feedAllSlidesAsMain === true && Array.isArray(slides) && slides.length > 1;
@@ -1067,7 +1239,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const startSlide = Math.max(0, slides.indexOf(item.src));
                 hero.dataset.slideIndex = String(Number.isNaN(startSlide) ? 0 : startSlide);
                 media.appendChild(hero);
-                if (slides.length > 1) {
+                const usesCoverFrame = applyFeedCoverFrame(media, item, hero);
+                if (slides.length > 1 && !usesCoverFrame) {
                     lockWorkFeedHeroSlot(media, hero);
                 }
                 const ytFeedId = youtubeIdFromItem(item);
@@ -1151,35 +1324,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
             article.appendChild(media);
             article.appendChild(info);
-            (index % 2 === 0 ? colLeft : colRight).appendChild(article);
+            cols[displayIndex % columnCount].appendChild(article);
         });
     }
 
-    function setWorkSection(section) {
-        workSection = section === 'art' ? 'art' : 'design';
-        document.body.dataset.workFeed = workSection;
-        currentImages = mergePortfolioProjects(galleryData, workSection);
+    let workFeedLayoutResizeRaf = 0;
+    window.addEventListener('resize', () => {
+        if (!document.body.classList.contains('work-mode')) return;
+        cancelAnimationFrame(workFeedLayoutResizeRaf);
+        workFeedLayoutResizeRaf = requestAnimationFrame(() => {
+            const nextCount = getWorkFeedColumnCount();
+            if (nextCount !== workFeedColumnCount) {
+                renderWorkFeed();
+            }
+        });
+    });
+
+    function setWorkSection() {
+        document.body.dataset.workFeed = 'design';
+        currentImages = mergePortfolioProjects(galleryData);
         if (detailOpen) closeDetailView(false);
         renderWorkFeed();
     }
 
-    setWorkSection('design');
+    setWorkSection();
 
     if (navDesign) {
         navDesign.addEventListener('click', (e) => {
             e.preventDefault();
             document.body.classList.remove('about-mode');
             document.body.classList.add('work-mode');
-            setWorkSection('design');
-        });
-    }
-
-    if (navArt) {
-        navArt.addEventListener('click', (e) => {
-            e.preventDefault();
-            document.body.classList.remove('about-mode');
-            document.body.classList.add('work-mode');
-            setWorkSection('art');
+            setWorkSection();
         });
     }
 
@@ -1214,7 +1389,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 hero.src = nextSrc;
                 hero.dataset.slideIndex = String(slideIdx);
                 const media = hero.parentElement;
-                if (media && media.classList.contains('work-feed-item__media')) {
+                if (
+                    media &&
+                    media.classList.contains('work-feed-item__media') &&
+                    !media.classList.contains('work-feed-item__media--cover-fill')
+                ) {
                     const rerender = () => lockWorkFeedHeroSlot(media, hero);
                     hero.addEventListener('load', rerender, { once: true });
                     requestAnimationFrame(() => {
@@ -1265,7 +1444,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (detailOpen) closeDetailView(false);
             document.body.classList.add('work-mode');
             document.body.classList.remove('about-mode');
-            document.body.dataset.workFeed = workSection;
+            document.body.dataset.workFeed = 'design';
             document.getElementById('work-gallery')?.scrollTo({ top: 0, behavior: 'smooth' });
         });
     }

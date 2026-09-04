@@ -2,6 +2,9 @@
     --bg-color: #ffffff;
     --text-color: #111111;
     --faded-color: #cccccc;
+    --font-sans: 'Space Grotesk', 'Noto Sans JP', system-ui, -apple-system, sans-serif;
+    --work-detail-media-max: min(920px, 72vw);
+    --work-detail-dialog-max: 920px;
 }
 
 /* Custom Fonts */
@@ -37,7 +40,7 @@
 body {
     background-color: var(--bg-color);
     color: var(--text-color);
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
     overflow: hidden;
     min-height: 100vh;
 }
@@ -201,7 +204,7 @@ main.site-shell {
 }
 
 .site-sidebar__tagline {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
     font-size: 0.7rem;
     font-weight: 300;
     letter-spacing: 0.08em;
@@ -272,9 +275,9 @@ main.site-shell {
 }
 
 .main-title {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Space Grotesk', 'Noto Sans JP', system-ui, -apple-system, sans-serif;
     font-size: clamp(1.2rem, 1.45vw, 1.65rem);
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 0.06em;
     color: var(--text-color);
     position: static;
@@ -285,11 +288,25 @@ main.site-shell {
     margin: 0 0 0.6rem;
     line-height: 1.15;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.main-title__icon {
+    width: 1.35em;
+    height: 1.35em;
+    object-fit: contain;
+    flex-shrink: 0;
+    display: block;
+    pointer-events: none;
+    /* Optical align favicon vs GENUINE KO — tweak this only (e.g. -1px / 1px / 2px) */
+    transform: translateY(-1px);
 }
 
 .link-item {
     white-space: nowrap;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
     font-size: 0.95rem;
     color: var(--text-color);
     opacity: 0.4;
@@ -320,23 +337,17 @@ main.site-shell {
 }
 
 /* --------------------------------- */
-/* STATE: WORK MODE — Design / Art tabs */
+/* STATE: WORK MODE — Design tab */
 /* --------------------------------- */
 #nav-design,
-#nav-art {
+#nav-about {
     text-transform: uppercase;
     letter-spacing: 0.06em;
     font-size: 0.88rem;
 }
 
-body.work-mode[data-work-feed='design'] #nav-design,
-body.work-mode[data-work-feed='art'] #nav-art {
+body.work-mode #nav-design {
     opacity: 1;
-}
-
-body.work-mode[data-work-feed='design'] #nav-art,
-body.work-mode[data-work-feed='art'] #nav-design {
-    opacity: 0.35;
 }
 
 body.work-mode #nav-about {
@@ -346,8 +357,7 @@ body.work-mode #nav-about {
 /* --------------------------------- */
 /* STATE: ABOUT MODE */
 /* --------------------------------- */
-body.about-mode #nav-design,
-body.about-mode #nav-art {
+body.about-mode #nav-design {
     opacity: 0.35;
 }
 
@@ -399,7 +409,8 @@ body.about-mode #about-section {
     grid-template-columns: minmax(200px, 1fr) minmax(200px, 1fr);
     grid-template-areas:
         'portrait lede'
-        'cv skills'
+        'experience education'
+        'language skills'
         'footer footer';
     gap: clamp(1.75rem, 3.5vw, 2.75rem) clamp(1.5rem, 4vw, 3rem);
     align-items: start;
@@ -408,7 +419,7 @@ body.about-mode #about-section {
     padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1.25rem, 4vw, 2.75rem) 2.25rem;
     box-sizing: border-box;
     min-height: min-content;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
     font-size: 0.92rem;
     line-height: 1.65;
     font-weight: 400;
@@ -424,8 +435,18 @@ body.about-mode #about-section {
     min-width: 0;
 }
 
-.about-cell--cv {
-    grid-area: cv;
+.about-cell--experience {
+    grid-area: experience;
+    min-width: 0;
+}
+
+.about-cell--education {
+    grid-area: education;
+    min-width: 0;
+}
+
+.about-cell--language {
+    grid-area: language;
     min-width: 0;
 }
 
@@ -441,7 +462,9 @@ body.about-mode #about-section {
     margin-top: 0.25rem;
 }
 
-.about-cell--cv .about-block:first-child,
+.about-cell--experience .about-block,
+.about-cell--education .about-block,
+.about-cell--language .about-block,
 .about-cell--skills .about-block:first-child {
     margin-top: 0;
 }
@@ -458,6 +481,14 @@ body.about-mode #about-section {
 .about-lede p {
     margin: 0 0 1.1rem;
     text-align: left;
+}
+
+.about-lede__intro {
+    font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+    font-weight: 500;
+    line-height: 1.35;
+    letter-spacing: 0.01em;
+    margin-bottom: 1.25rem;
 }
 
 .about-lede p:last-of-type {
@@ -514,6 +545,12 @@ body.about-mode #about-section {
 .about-cv-row__title {
     font-weight: 400;
     color: #111111;
+}
+
+.about-cv-row__sub {
+    display: block;
+    color: #5a5a5a;
+    margin-top: 0.15rem;
 }
 
 .about-cv-row__org {
@@ -594,7 +631,8 @@ body.about-mode #about-section {
 
 .about-external-links__link {
     color: #000000;
-    font-family: 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
+    font-weight: 300;
     font-size: 0.86rem;
     font-weight: 300;
     text-decoration: none;
@@ -623,7 +661,8 @@ body.about-mode #about-section {
 
 .social-links a {
     color: #000000;
-    font-family: 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
+    font-weight: 300;
     font-size: 1.15rem;
     font-weight: 300;
     text-decoration: none;
@@ -647,7 +686,8 @@ body.about-mode #about-section {
 
 .about-contact__label {
     margin: 0;
-    font-family: 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
+    font-weight: 300;
     font-size: 0.72rem;
     font-weight: 300;
     text-transform: uppercase;
@@ -665,7 +705,8 @@ body.about-mode #about-section {
 
 .about-contact__emails a {
     color: #000000;
-    font-family: 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
+    font-weight: 300;
     font-size: 0.95rem;
     font-weight: 300;
     text-decoration: none;
@@ -703,7 +744,7 @@ body.work-mode #work-gallery {
     pointer-events: auto;
 }
 
-/* Two flex columns: each card stacks under the one above in that column (not locked to shared grid rows). */
+/* Flex columns: each card stacks under the one above in that column (not locked to shared grid rows). */
 .work-feed {
     width: 100%;
     max-width: none;
@@ -723,17 +764,6 @@ body.work-mode #work-gallery {
     display: flex;
     flex-direction: column;
     gap: 10px;
-}
-
-/* Narrow: single column, row-major order (order set on each .work-feed-item in JS). */
-@media (max-width: 480px) {
-    .work-feed {
-        flex-direction: column;
-    }
-
-    .work-feed__col {
-        display: contents;
-    }
 }
 
 .work-feed-item {
@@ -756,8 +786,28 @@ body.work-mode #work-gallery {
 }
 
 .work-feed-item__media[data-hero-slot-locked='1'] {
-    /* Allow full image when thumbs switch to a taller aspect — fixed height still from lockWorkFeedHeroSlot */
     overflow: visible;
+}
+
+.work-feed-item__media[data-hero-slot-locked='1'] img {
+    height: 100%;
+    max-height: 100%;
+}
+
+.work-feed-item__media--cover-fill {
+    aspect-ratio: var(--feed-cover-w, 1080) / var(--feed-cover-h, 1350);
+    overflow: hidden;
+    align-items: stretch;
+    justify-content: stretch;
+}
+
+.work-feed-item__media--cover-fill img {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    object-fit: cover;
+    object-position: center center;
 }
 
 .work-feed-item__media img {
@@ -833,7 +883,7 @@ body.work-mode #work-gallery {
 
 .work-feed-item__title {
     margin: 0;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
     font-size: 0.78rem;
     font-weight: 500;
     line-height: 1.35;
@@ -841,11 +891,12 @@ body.work-mode #work-gallery {
     flex: 1;
     min-width: 0;
     cursor: pointer;
+    text-transform: uppercase;
 }
 
 .work-feed-item__year {
     flex-shrink: 0;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
     font-size: 0.68rem;
     font-weight: 300;
     color: #777777;
@@ -873,7 +924,7 @@ body.work-mode #work-gallery {
 
 .work-feed-item__desc {
     margin: 0;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
     font-size: 0.95rem;
     font-weight: 300;
     line-height: 1.65;
@@ -949,7 +1000,7 @@ body.work-mode #work-gallery {
 
 .work-detail-dialog {
     position: relative;
-    width: min(100%, 920px);
+    width: min(100%, var(--work-detail-dialog-max));
     max-width: 100%;
     max-height: min(92dvh, calc(100dvh - 2 * clamp(12px, 4vmin, 28px)));
     display: flex;
@@ -999,7 +1050,7 @@ body.work-mode #work-gallery {
     font-size: 1.85rem;
     font-weight: 300;
     line-height: 1;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
     transform: translateY(-1px);
 }
 
@@ -1075,10 +1126,16 @@ body.work-mode #work-gallery {
     margin-bottom: clamp(1.25rem, 4vw, 2rem);
     flex-shrink: 0;
     align-self: stretch;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: none;
+    min-height: 0;
+    object-fit: contain;
 }
 
 .work-detail-article {
-    max-width: min(920px, 72vw);
+    max-width: var(--work-detail-media-max);
     box-sizing: border-box;
     width: 100%;
     margin: 1.35rem auto 0;
@@ -1092,7 +1149,8 @@ body.work-mode #work-gallery {
 
 .work-detail-article p {
     margin: 0 0 1em;
-    font-family: 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
+    font-weight: 300;
     font-weight: 100;
     font-size: clamp(0.82rem, 1.15vw, 0.95rem);
     line-height: 1.65;
@@ -1106,7 +1164,8 @@ body.work-mode #work-gallery {
 
 .work-detail-article h2,
 .work-detail-article h3 {
-    font-family: 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
+    font-weight: 300;
     font-weight: 100;
     letter-spacing: 0.04em;
     color: #111111;
@@ -1127,7 +1186,8 @@ body.work-mode #work-gallery {
 
 .work-detail-article h3.work-detail-article__stack-heading,
 .detail-longform h3.work-detail-article__stack-heading {
-    font-family: 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
+    font-weight: 300;
     font-weight: 100;
     font-size: clamp(0.95rem, 1.35vw, 1.05rem);
     letter-spacing: 0.06em;
@@ -1239,7 +1299,8 @@ body.work-mode #work-gallery {
 
 .work-detail-obj-viewer__hint {
     margin: 0.5rem 0 0;
-    font-family: 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
+    font-weight: 300;
     font-size: clamp(0.75rem, 1vw, 0.85rem);
     font-weight: 300;
     color: #666666;
@@ -1247,7 +1308,8 @@ body.work-mode #work-gallery {
 }
 
 .work-detail-article__obj-link {
-    font-family: 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
+    font-weight: 300;
     font-size: clamp(0.82rem, 1.15vw, 0.95rem);
     font-weight: 300;
     color: #111111;
@@ -1294,14 +1356,14 @@ body.work-mode #work-gallery {
 }
 
 .work-detail-heading {
-    max-width: min(920px, 72vw);
+    max-width: var(--work-detail-media-max);
     width: 100%;
     margin: 0 auto 0.8rem;
     text-align: center;
 }
 
 .work-detail-main {
-    max-width: min(920px, 72vw);
+    max-width: var(--work-detail-media-max);
     width: 100%;
     margin: 0 auto;
     display: flex;
@@ -1314,12 +1376,12 @@ body.work-mode #work-gallery {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    max-width: min(920px, 72vw);
+    max-width: var(--work-detail-media-max);
 }
 
 .work-detail-layer.work-detail--scroll-page .work-detail-article-lead {
     width: 100%;
-    max-width: min(920px, 72vw);
+    max-width: var(--work-detail-media-max);
     margin: 0 auto;
     padding: 0 0.15rem;
     box-sizing: border-box;
@@ -1331,7 +1393,8 @@ body.work-mode #work-gallery {
 
 .work-detail-article-lead p {
     margin: 0 0 0.85em;
-    font-family: 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
+    font-weight: 300;
     font-weight: 100;
     font-size: clamp(0.82rem, 1.15vw, 0.95rem);
     line-height: 1.65;
@@ -1345,7 +1408,7 @@ body.work-mode #work-gallery {
 
 .work-detail-layer.work-detail--scroll-page .work-detail-article-after-hero {
     width: 100%;
-    max-width: min(920px, 72vw);
+    max-width: var(--work-detail-media-max);
     margin: 0 auto;
     padding: 0 0.15rem;
     box-sizing: border-box;
@@ -1357,7 +1420,8 @@ body.work-mode #work-gallery {
 
 .work-detail-article-after-hero p {
     margin: 0 0 0.85em;
-    font-family: 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
+    font-weight: 300;
     font-weight: 100;
     font-size: clamp(0.82rem, 1.15vw, 0.95rem);
     line-height: 1.65;
@@ -1372,7 +1436,7 @@ body.work-mode #work-gallery {
 .work-detail-meta {
     position: absolute;
     /* Anchor text to the right edge of the centered hero block */
-    left: calc(50% + (min(920px, 72vw) / 2) + 24px);
+    left: calc(50% + (var(--work-detail-media-max) / 2) + 24px);
     right: auto;
     top: 50%;
     transform: translateY(-50%);
@@ -1415,8 +1479,8 @@ body.work-mode #work-gallery {
 
 #work-detail-hero {
     display: block;
-    max-width: min(920px, 100%);
-    width: auto;
+    max-width: min(var(--work-detail-media-max), 100%);
+    width: 100%;
     height: auto;
     max-height: min(72vh, 680px);
     min-height: 200px;
@@ -1444,6 +1508,143 @@ body.work-mode #work-gallery {
     cursor: pointer;
 }
 
+.work-detail-carousel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    width: 100%;
+    max-width: 100%;
+}
+
+.work-detail-hero-stage {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.work-detail-layer.work-detail--carousel .work-detail-hero-stage {
+    aspect-ratio: var(--carousel-w, 1080) / var(--carousel-h, 1350);
+    width: min(100%, var(--work-detail-media-max));
+    max-height: min(82vh, 760px);
+    max-width: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: #f0f0f0;
+    height: auto;
+    flex: 0 1 auto;
+}
+
+.work-detail-layer.work-detail--carousel #work-detail-hero,
+.work-detail-layer.work-detail--carousel .work-detail-hero-twin {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    min-height: 0;
+    margin: 0;
+    object-fit: cover;
+    object-position: center center;
+    box-shadow: none;
+    transform: none;
+    opacity: 1;
+    transition: none;
+}
+
+.work-detail-layer.work-detail--carousel #work-detail-hero.work-detail-hero-slide,
+.work-detail-layer.work-detail--carousel .work-detail-hero-twin {
+    transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+}
+
+.work-detail-layer.work-detail--carousel #work-detail-hero.detail-hero-grow,
+.work-detail-layer.work-detail--carousel #work-detail-hero.detail-hero-from-gallery {
+    transform: none;
+    opacity: 1;
+}
+
+.work-detail-nav {
+    position: static;
+    flex: 0 0 auto;
+    z-index: 3;
+    width: auto;
+    height: auto;
+    min-width: 1.5rem;
+    padding: 0.35rem 0.15rem;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    color: #111111;
+    box-shadow: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease;
+}
+
+.work-detail-nav[hidden] {
+    display: none !important;
+}
+
+.work-detail-nav span {
+    font-size: clamp(1.75rem, 3.5vw, 2.35rem);
+    font-weight: 300;
+    line-height: 1;
+    font-family: var(--font-sans);
+    color: #111111;
+}
+
+.work-detail-nav--prev,
+.work-detail-nav--next {
+    left: auto;
+    right: auto;
+    transform: none;
+}
+
+.work-detail-nav:hover {
+    background: transparent;
+    opacity: 0.55;
+}
+
+.work-detail-nav:focus,
+.work-detail-nav:focus-visible {
+    outline: none;
+}
+
+@media (max-width: 900px) {
+    .work-detail-carousel {
+        gap: 0.25rem;
+    }
+
+    .work-detail-layer.work-detail--carousel .work-detail-hero-stage {
+        flex: 1 1 auto;
+        width: auto;
+        min-width: 0;
+        max-width: 100%;
+        max-height: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .work-detail-nav {
+        min-width: 1.25rem;
+        padding: 0.25rem 0.05rem;
+    }
+
+    .work-detail-nav span {
+        font-size: 1.55rem;
+    }
+}
+
 #work-detail-hero.detail-hero--advance:focus-visible {
     outline: 2px solid rgba(17, 17, 17, 0.45);
     outline-offset: 4px;
@@ -1455,7 +1656,7 @@ body.work-mode #work-gallery {
 
 .work-detail-video {
     width: 100%;
-    max-width: min(920px, 100%);
+    max-width: min(var(--work-detail-media-max), 100%);
     margin: 0 auto;
     transform: scale(0.95);
     opacity: 0.8;
@@ -1487,9 +1688,11 @@ body.work-mode #work-gallery {
 
 .work-detail-title {
     font-size: clamp(1.75rem, 3.5vw, 2.35rem);
-    font-family: 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, 'Noto Sans JP', sans-serif;
+    font-family: var(--font-sans);
+    font-weight: 300;
     font-weight: 100;
     margin: 0 0 0.25rem;
+    text-transform: uppercase;
 }
 
 .work-detail-year {
@@ -1507,22 +1710,64 @@ body.work-mode #work-gallery {
 }
 
 @media (max-width: 900px) {
+    :root {
+        --work-detail-media-max: 100%;
+        --work-detail-dialog-max: 100%;
+    }
+
+    .work-detail-layer {
+        padding: max(env(safe-area-inset-top, 0px), 6px)
+            max(env(safe-area-inset-right, 0px), 4px)
+            max(env(safe-area-inset-bottom, 0px), 6px)
+            max(env(safe-area-inset-left, 0px), 4px);
+    }
+
     .work-detail-dialog {
         width: 100%;
-        max-height: min(92dvh, calc(100dvh - 2 * clamp(10px, 3vmin, 22px)));
+        max-height: min(96dvh, calc(100dvh - 2 * 6px));
     }
 
     .work-detail-panel {
         display: flex;
         flex-direction: column;
         align-items: stretch;
-        padding: 2.5rem 0.85rem 1rem;
+        padding: 2.35rem 0.35rem 0.75rem;
     }
 
     .work-detail-layer.work-detail--scroll-page .work-detail-panel {
         padding-top: max(2.85rem, calc(env(safe-area-inset-top, 0px) + 2.35rem));
-        padding-left: max(0.85rem, env(safe-area-inset-left, 0px));
-        padding-right: max(0.85rem, env(safe-area-inset-right, 0px));
+        padding-left: max(0.35rem, env(safe-area-inset-left, 0px));
+        padding-right: max(0.35rem, env(safe-area-inset-right, 0px));
+    }
+
+    #work-detail-hero {
+        max-width: 100%;
+        width: 100%;
+        height: auto;
+        max-height: none;
+        min-height: 0;
+        object-fit: contain;
+    }
+
+    .work-detail-hero-stage {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    /* Image fills remaining width between side arrows */
+    .work-detail-layer.work-detail--carousel .work-detail-hero-stage {
+        flex: 1 1 auto;
+        width: auto;
+        min-width: 0;
+        max-width: 100%;
+        max-height: none;
+        height: auto;
+        aspect-ratio: var(--carousel-w, 1080) / var(--carousel-h, 1350);
+    }
+
+    .work-detail-layer.work-detail--carousel #work-detail-hero,
+    .work-detail-layer.work-detail--carousel .work-detail-hero-twin {
+        object-fit: cover;
     }
 
     /* Title (top) → hero vertically centered in remaining space → thumbs → copy */
@@ -1653,7 +1898,8 @@ body.work-mode #work-gallery {
         max-width: 100%;
         width: 100%;
         height: auto;
-        max-height: min(78vh, 720px);
+        max-height: none;
+        min-height: 0;
         object-fit: contain;
         box-shadow: none;
     }
@@ -1669,10 +1915,11 @@ body.work-mode #work-gallery {
     }
 
     #work-detail-hero {
-        max-height: 50vh;
-        min-height: 200px;
+        max-height: none;
+        min-height: 0;
         max-width: 100%;
         width: 100%;
+        height: auto;
         box-sizing: border-box;
         overflow: hidden;
     }
@@ -1696,7 +1943,7 @@ body.project-detail-page * {
 body.project-detail-page {
     background-color: var(--bg-color);
     color: var(--text-color);
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
     overflow-x: hidden;
     overflow-y: auto;
     min-height: 100vh;
@@ -1709,7 +1956,8 @@ body.project-detail-page {
 }
 
 .detail-back {
-    font-family: 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
+    font-weight: 300;
     font-weight: 300;
     font-size: 0.9rem;
     text-transform: uppercase;
@@ -1849,7 +2097,8 @@ body.project-detail-page.project-detail--scroll-page #detail-hero {
 
 .detail-longform p {
     margin: 0 0 1em;
-    font-family: 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
+    font-weight: 300;
     font-weight: 100;
     font-size: clamp(0.82rem, 1.15vw, 0.95rem);
     line-height: 1.65;
@@ -1863,7 +2112,8 @@ body.project-detail-page.project-detail--scroll-page #detail-hero {
 
 .detail-longform h2,
 .detail-longform h3 {
-    font-family: 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
+    font-weight: 300;
     font-weight: 100;
     letter-spacing: 0.04em;
     color: #111111;
@@ -1955,7 +2205,8 @@ body.project-detail-page.project-detail--scroll-page .detail-article-after-hero:
 
 .detail-article-after-hero p {
     margin: 0 0 0.85em;
-    font-family: 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
+    font-weight: 300;
     font-weight: 100;
     font-size: clamp(0.82rem, 1.15vw, 0.95rem);
     line-height: 1.65;
@@ -1969,7 +2220,8 @@ body.project-detail-page.project-detail--scroll-page .detail-article-after-hero:
 
 .detail-article-lead p {
     margin: 0 0 0.85em;
-    font-family: 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
+    font-weight: 300;
     font-weight: 100;
     font-size: clamp(0.82rem, 1.15vw, 0.95rem);
     line-height: 1.65;
@@ -2000,7 +2252,7 @@ body.project-detail-page.project-detail--scroll-page .detail-article-after-hero:
 }
 
 .work-detail-main .detail-artwork-footer {
-    max-width: min(920px, 72vw);
+    max-width: var(--work-detail-media-max);
 }
 
 /* Design projects: description reads as a block directly under the hero (stacked, not beside year) */
@@ -2016,6 +2268,11 @@ body.project-detail-page.project-detail--scroll-page .detail-article-after-hero:
     width: 100%;
     margin-left: auto;
     margin-right: auto;
+    text-align: center;
+}
+
+.work-detail-layer.work-detail--design .detail-artwork-description__text {
+    text-align: center;
 }
 
 .work-detail-layer.work-detail--design .detail-artwork-spec--year-only {
@@ -2038,7 +2295,8 @@ body.project-detail-page.project-detail--scroll-page .detail-article-after-hero:
 
 .detail-artwork-description__text {
     margin: 0;
-    font-family: 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
+    font-weight: 300;
     font-weight: 100;
     font-size: clamp(0.72rem, 1.05vw, 0.82rem);
     line-height: 1.6;
@@ -2067,7 +2325,8 @@ body.project-detail-page.project-detail--scroll-page .detail-article-after-hero:
 
 .detail-artwork-spec p {
     margin: 0;
-    font-family: 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
+    font-weight: 300;
     font-weight: 100;
     font-size: clamp(0.72rem, 1.05vw, 0.82rem);
     line-height: 1.55;
@@ -2182,16 +2441,19 @@ body.project-detail-page.project-detail--youtube .detail-figure {
 }
 
 .detail-title {
-    font-family: 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, 'Noto Sans JP', sans-serif;
+    font-family: var(--font-sans);
+    font-weight: 300;
     font-weight: 100;
     font-size: clamp(1.75rem, 3.5vw, 2.35rem);
     margin-bottom: 0.35rem;
     letter-spacing: 0.02em;
     text-align: right;
+    text-transform: uppercase;
 }
 
 .detail-year {
-    font-family: 'Helvetica Neue UltraLight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
+    font-weight: 300;
     font-weight: 300;
     font-size: 0.95rem;
     color: #555555;
@@ -2323,6 +2585,42 @@ body.project-detail-page.project-detail--youtube .detail-figure {
     }
 }
 
+/* Desktop detail popup: keep outer frame; size image to fit height inside the popup */
+@media (min-width: 769px) {
+    :root {
+        --work-detail-media-max: min(750px, 58vw);
+        --work-detail-dialog-max: 820px;
+        --work-detail-image-max-h: min(82vh, 760px);
+    }
+
+    #work-detail-hero {
+        max-height: var(--work-detail-image-max-h);
+        min-height: 0;
+    }
+
+    .work-detail-layer.work-detail--scroll-page .work-detail-main__column {
+        align-items: center;
+    }
+
+    .work-detail-layer.work-detail--scroll-page #work-detail-hero,
+    .work-detail-layer.work-detail--scroll-page .work-detail-article img.work-detail-article__img {
+        width: auto;
+        max-width: 100%;
+        height: auto;
+        max-height: var(--work-detail-image-max-h);
+        min-height: 0;
+        margin-left: auto;
+        margin-right: auto;
+        object-fit: contain;
+        align-self: center;
+    }
+
+    .work-detail-layer.work-detail--scroll-page .work-detail-article .work-detail-article__fig {
+        display: flex;
+        justify-content: center;
+    }
+}
+
 @media (max-width: 768px) {
     html {
         -webkit-text-size-adjust: 100%;
@@ -2383,9 +2681,7 @@ body.project-detail-page.project-detail--youtube .detail-figure {
     }
 
     body.work-mode #nav-design,
-    body.work-mode #nav-art,
     body.about-mode #nav-design,
-    body.about-mode #nav-art,
     body.work-mode #nav-about,
     body.about-mode #nav-about {
         font-size: clamp(0.78rem, 2.8vw, 0.92rem);
@@ -2429,9 +2725,36 @@ body.project-detail-page.project-detail--youtube .detail-figure {
         gap: 8px;
     }
 
+    .work-feed-item__rule,
+    .work-feed-item__copy,
+    .work-feed-item--caption .work-feed-item__copy {
+        display: none;
+    }
+
+    .work-feed-item__info {
+        padding-top: 0.4rem;
+    }
+
+    .work-feed-item__title {
+        font-size: clamp(0.72rem, 3.1vw, 0.88rem);
+    }
+
+    .work-feed-item__year {
+        font-size: clamp(0.68rem, 2.8vw, 0.78rem);
+    }
+
+    .work-feed-item__thumbs {
+        margin-top: 0.35rem;
+    }
+
     .work-feed-item__media img {
         max-width: 100%;
         max-height: min(70vh, 640px);
+    }
+
+    .work-feed-item__media--cover-fill img {
+        max-height: none;
+        height: 100%;
     }
 
     /* About: let the page grow and scroll with the document — nested overflow + absolute height is unreliable on iOS. */
@@ -2465,8 +2788,10 @@ body.project-detail-page.project-detail--youtube .detail-figure {
         grid-template-areas:
             'portrait'
             'lede'
-            'cv'
+            'experience'
+            'education'
             'skills'
+            'language'
             'footer';
         max-width: 100%;
         gap: 1.35rem;
