@@ -410,7 +410,8 @@ body.about-mode #about-section {
     grid-template-areas:
         'portrait lede'
         'experience education'
-        'language skills'
+        'skills language'
+        'resume resume'
         'footer footer';
     gap: clamp(1.75rem, 3.5vw, 2.75rem) clamp(1.5rem, 4vw, 3rem);
     align-items: start;
@@ -455,6 +456,11 @@ body.about-mode #about-section {
     min-width: 0;
 }
 
+.about-cell--resume {
+    grid-area: resume;
+    min-width: 0;
+}
+
 .about-cell--footer {
     grid-area: footer;
     padding-top: 0.25rem;
@@ -469,7 +475,7 @@ body.about-mode #about-section {
     margin-top: 0;
 }
 
-.about-cell--language .about-external-links {
+.about-cell--resume .about-external-links {
     margin-top: 0;
 }
 
@@ -2814,6 +2820,7 @@ body.project-detail-page.project-detail--youtube .detail-figure {
             'education'
             'skills'
             'language'
+            'resume'
             'footer';
         max-width: 100%;
         gap: 1.35rem;
