@@ -1516,7 +1516,7 @@ body.work-mode #work-gallery {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.55rem;
+    gap: 0;
     width: 100%;
     max-width: 100%;
 }
@@ -1533,14 +1533,17 @@ body.work-mode #work-gallery {
 
 .work-detail-layer.work-detail--carousel .work-detail-hero-stage {
     aspect-ratio: var(--carousel-w, 1080) / var(--carousel-h, 1350);
-    width: min(100%, var(--work-detail-media-max));
+    /* Fill width between side arrows — no empty strip beside the poster */
+    width: auto;
+    flex: 1 1 auto;
+    min-width: 0;
     max-height: min(82vh, 760px);
     max-width: 100%;
     margin: 0;
     overflow: hidden;
-    background: #f0f0f0;
+    background: transparent;
     height: auto;
-    flex: 0 1 auto;
+    align-self: center;
 }
 
 .work-detail-layer.work-detail--carousel #work-detail-hero,
@@ -1554,7 +1557,8 @@ body.work-mode #work-gallery {
     max-height: none;
     min-height: 0;
     margin: 0;
-    object-fit: cover;
+    /* Full poster visible inside the fixed aspect frame (no crop) */
+    object-fit: contain;
     object-position: center center;
     box-shadow: none;
     transform: none;
@@ -1580,8 +1584,8 @@ body.work-mode #work-gallery {
     z-index: 3;
     width: auto;
     height: auto;
-    min-width: 1.5rem;
-    padding: 0.35rem 0.15rem;
+    min-width: 1.15rem;
+    padding: 0.35rem 0;
     margin: 0;
     border: none;
     border-radius: 0;
@@ -1626,7 +1630,7 @@ body.work-mode #work-gallery {
 
 @media (max-width: 900px) {
     .work-detail-carousel {
-        gap: 0.25rem;
+        gap: 0;
     }
 
     .work-detail-layer.work-detail--carousel .work-detail-hero-stage {
@@ -1634,14 +1638,16 @@ body.work-mode #work-gallery {
         width: auto;
         min-width: 0;
         max-width: 100%;
-        max-height: none;
+        max-height: min(78dvh, 720px);
+        height: auto;
+        aspect-ratio: var(--carousel-w, 1080) / var(--carousel-h, 1350);
     }
 }
 
 @media (max-width: 768px) {
     .work-detail-nav {
-        min-width: 1.25rem;
-        padding: 0.25rem 0.05rem;
+        min-width: 1rem;
+        padding: 0.25rem 0;
     }
 
     .work-detail-nav span {
@@ -1758,20 +1764,28 @@ body.work-mode #work-gallery {
         max-width: 100%;
     }
 
-    /* Image fills remaining width between side arrows */
+    /* Fixed 1080×1350 frame between side arrows — fill width, no side strip */
     .work-detail-layer.work-detail--carousel .work-detail-hero-stage {
         flex: 1 1 auto;
         width: auto;
         min-width: 0;
         max-width: 100%;
-        max-height: none;
+        max-height: min(78dvh, 720px);
         height: auto;
         aspect-ratio: var(--carousel-w, 1080) / var(--carousel-h, 1350);
+        align-self: center;
+        background: transparent;
     }
 
     .work-detail-layer.work-detail--carousel #work-detail-hero,
     .work-detail-layer.work-detail--carousel .work-detail-hero-twin {
-        object-fit: cover;
+        object-fit: contain;
+    }
+
+    .work-detail-layer.work-detail--carousel .work-detail-main {
+        flex: 0 0 auto;
+        min-height: min-content;
+        justify-content: flex-start;
     }
 
     /* Title (top) → hero vertically centered in remaining space → thumbs → copy */
