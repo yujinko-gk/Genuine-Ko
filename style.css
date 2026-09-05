@@ -276,7 +276,7 @@ main.site-shell {
 
 .main-title {
     font-family: 'Space Grotesk', 'Noto Sans JP', system-ui, -apple-system, sans-serif;
-    font-size: clamp(1.2rem, 1.45vw, 1.65rem);
+    font-size: clamp(1.05rem, 1.3vw, 1.45rem);
     font-weight: 700;
     letter-spacing: 0.06em;
     color: var(--text-color);
@@ -2690,7 +2690,7 @@ body.project-detail-page.project-detail--youtube .detail-figure {
     }
 
     .main-title {
-        font-size: clamp(1.05rem, 4.5vw, 1.45rem);
+        font-size: clamp(0.95rem, 4vw, 1.3rem);
         margin-bottom: 0.35rem;
     }
 
